@@ -1,24 +1,22 @@
 import React from 'react';
-import logo from './logo.svg';
+import ResponsiveAppBar from './components/nav'
+import Home from './components/Home'
+import Overview from './components/Overview'
+import Boldface from './components/Boldface'
+import Quiz from './components/Quiz'
+import { Routes, Route } from "react-router-dom";
 import './App.css';
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <ResponsiveAppBar />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="Overview" element={<Overview />} />
+        <Route path="Boldface" element={<Boldface />} />
+        <Route path="Quiz" element={<Quiz />} />
+      </Routes>
     </div>
   );
 }
