@@ -5,11 +5,21 @@ import Overview from './components/Overview'
 import Boldface from './components/Boldface'
 import Quiz from './components/Quiz'
 import { Routes, Route } from "react-router-dom";
+import { ThemeProvider, createTheme} from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
 import './App.css';
+
+const darkTheme = createTheme({
+  palette: {
+    mode: 'dark',
+  },
+});
 
 function App() {
   return (
     <div className="App">
+    <ThemeProvider theme={darkTheme}>
+      <CssBaseline />
       <ResponsiveAppBar />
       <Routes>
         <Route path="/" element={<Home />} />
@@ -17,6 +27,7 @@ function App() {
         <Route path="Boldface" element={<Boldface />} />
         <Route path="Quiz" element={<Quiz />} />
       </Routes>
+    </ThemeProvider> 
     </div>
   );
 }

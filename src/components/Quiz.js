@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { restdb, realtimeURL } from '../helper.js';
 import "../style/Quiz.css"
+import axios from "../Utils/api.client";
+
 
 function Quiz() {
 
@@ -72,7 +74,7 @@ function Quiz() {
             <div className="quiz-question-section">
               <div className="quiz-question-count">
                 <span>Question {currentQuestion + 1}</span>
-                {questions.length}
+                /{questions.length}
               </div>
               <div className="quiz-question-text">
                 {questions[currentQuestion].questionText}
