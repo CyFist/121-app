@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { restdb, realtimeURL } from '../helper.js';
 import "../style/Quiz.css"
 import axios from "../Utils/api.client";
 
