@@ -12,15 +12,8 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
-import { ThemeProvider, createTheme} from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-import { Link } from 'react-router-dom'
 
-const darkTheme = createTheme({
-    palette: {
-      mode: 'dark',
-    },
-  });
+import { Link } from 'react-router-dom'
 
 const pages = ['Home', 'Overview', 'Boldface', 'Quiz'];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
@@ -44,10 +37,7 @@ const ResponsiveAppBar = () => {
     setAnchorElUser(null);
   };
 
-  return (
-
-    <ThemeProvider theme={darkTheme}>
-    <CssBaseline />   
+  return (   
     <AppBar position="static">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
@@ -158,7 +148,7 @@ const ResponsiveAppBar = () => {
         </Toolbar>
       </Container>
     </AppBar>
-    </ThemeProvider> 
+
   );
 };
 export default ResponsiveAppBar;

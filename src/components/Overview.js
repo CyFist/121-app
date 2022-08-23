@@ -39,11 +39,12 @@ const Overview =() => {
   return (
     <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'flex' } }}>
       <h1>Overview</h1>
-      <h2>
-        {objs}
-      </h2>
     </Box>
   );
   }
 
 export default Overview;
+
+//<h2>
+//       {objs}
+//      </h2>

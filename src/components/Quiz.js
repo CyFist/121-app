@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import "../style/Quiz.css"
 import axios from "../Utils/api.client";
 
-
 function Quiz() {
 
   const questions = [
