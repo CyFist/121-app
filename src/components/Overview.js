@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "../Utils/api.client";
+import axios from "axios";
 import Box from '@mui/material/Box';
 
 const Overview =() => {
@@ -13,7 +13,12 @@ const Overview =() => {
     const fetchquiz = async () => {
       setLoading(true);
       try {
-        const { data } = await axios.get("/quiz");
+        const headers = {
+          "x-apikey": "63027f8439a0a971fe91626a",
+        "cache-control": "no-cache"
+      };
+      
+      const { data } = await axios.get('https://onetwoone-ca88.restdb.io/rest/quiz', { headers })
         setData(data);
         console.log(Data);
         setLoading(false);
@@ -39,12 +44,12 @@ const Overview =() => {
   return (
     <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'flex' } }}>
       <h1>Overview</h1>
+      <h2>
+       {objs}
+        </h2>
     </Box>
   );
   }
 
 export default Overview;
 
-//<h2>
-//       {objs}
-//      </h2>
