@@ -208,33 +208,33 @@ export default function Boldface() {
                     autoComplete="off"
                   >
                     <Controller
-                control={control}
-                name={Object.keys(ans)[0]}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    variant="outlined"
-                    size="small"
-                    label=""
-                    inputProps={{ style: { textTransform: "uppercase" } }}
+                    control={control}
+                    name={Object.keys(ans)[0]}
+                    defaultValue=""
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        variant="outlined"
+                        size="small"
+                        label=""
+                        inputProps={{ style: { textTransform: "uppercase" } }}
+                      />
+                    )}
                   />
-                )}
-              />
-              <Controller
-                control={control}
-                name={Object.keys(ans)[1]}
-                defaultValue=""
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    fullWidth
-                    variant="outlined"
-                    size="small"
-                    label=""
-                    inputProps={{ style: { textTransform: "uppercase" } }}
-                  />
+                  <Controller
+                    control={control}
+                    name={Object.keys(ans)[1]}
+                    defaultValue=""
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        variant="outlined"
+                        size="small"
+                        label=""
+                        inputProps={{ style: { textTransform: "uppercase" } }}
+                      />
                 )}
               />                  
                   </Box>
