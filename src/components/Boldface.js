@@ -1,157 +1,249 @@
 import React, { useState, useEffect } from "react";
-import Box from '@mui/material/Box';
-import {Container, Fab, Typography,TextField,FormControl} from '@mui/material/';
+import { useForm, Controller } from "react-hook-form";
+import { alpha, Box, Container, Popover, Backdrop, Fab, Typography, TextField } from '@mui/material/';
+import { green, red } from "@mui/material/colors";
+import { isEqual, forIn, update, transform } from "lodash";
 
-
-
-const Boldface =() => {
+export default function Boldface() {
 
   const boldfaces = [
     {
-      headerText: "Both Engine Flame Out",
-      answerText: [
+      header : "Both Engine Flame Out",
+      answers: [
         { answerText1: "IGNITION", answerText2: "BOTH ON" },
       ]
     },
     {
-      headerText: "Engine Fire / Severe Damage",
-      answerText: [
+      header: "Engine Fire / Severe Damage",
+      answers: [
         { answerText1: "FUEL LEVER", answerText2: "SHUT" },
-        { answerText1: "FIRE HANDLE", answerText2: "PULL AND DISCH 1" },
+        { answerText3: "FIRE HANDLE", answerText4: "PULL AND DISCH 1" }
       ]
     },
     {
-      headerText: "Engine Out",
-      answerText: [
-        { promptText: "If no light-up within 10 seconds:", answerText1: "FUEL LEVER", answerText2: "SHUT" },
+      header: "Engine Out",
+      answers: [
+        { answerText1: "FUEL LEVER", answerText2: "SHUT", promptText: "If no light-up within 10 seconds:" }
       ]
     },
     {
-      headerText: "Engine ITT High",
-      answerText: [
-        { answerText1: "POWER LEVER", answerText2: "RETARD" },
+      header: "Engine ITT High",
+      answers: [
+        { answerText1: "POWER LEVER", answerText2: "RETARD" }
       ]
     },
     {
-      headerText: "Air-Start",
-      answerText: [
-        { promptText: "If no light-up within 10 seconds:", answerText1: "FUEL LEVER", answerText2: "SHUT" },
-        { answerText1: "START P/B", answerText2: "OFF" },
-        { answerText1: "IGNITION", answerText2: "OFF" },
+      header: "Air-Start",
+      answers: [
+        { answerText1: "FUEL LEVER", answerText2: "SHUT", promptText: "If no light-up within 10 seconds:" },
+        { answerText3: "START P/B", answerText4: "OFF" },
+        { answerText5: "IGNITION", answerText6: "OFF" }
       ]
     },
     {
-      headerText: "Excessive Cabin Altitude",
-      answerText: [
+      header: "Excessive Cabin Altitude",
+      answers: [
         { answerText1: "OXY MASK", answerText2: "ON" },
       ]
     },
     {
-      headerText: "Evacuation / On Ground",
-      answerText: [
+      header: "Evacuation / On Ground",
+      answers: [
         { answerText1: "PARK BRAKE", answerText2: "ON" },
-        { answerText1: "BOTH FUEL LEVERS", answerText2: "SHUT" },
+        { answerText3: "BOTH FUEL LEVERS", answerText4: "SHUT" }
       ]
     },
     {
-      headerText: "Discountinued Engine Start On Ground",
-      answerText: [
-        { promptText: "If no light-up within 10 sec after advancing the fuel lever to START:", answerText1: "FUEL LEVER", answerText2: "SHUT" },
-        { promptText: "15 sec after shutting the fuel lever:", answerText1: "START P/B", answerText2: "OFF" },
+      header: "Discountinued Engine Start On Ground1",
+      answers: [
+        { answerText1: "FUEL LEVER", answerText2: "SHUT", promptText: "If no light-up within 10 sec after advancing the fuel lever to START:" },
+        { answerText3: "START P/B", answerText4: "OFF", promptText: "15 sec after shutting the fuel lever:" }
       ]
     },
     {
-      headerText: "Discountinued Engine Start On Ground",
-      answerText: [
-        { promptText: "If ITT rises rapidly and the start limit is likely to be exceeeded:", answerText1: "FUEL LEVER", answerText2: "SHUT" },
-        { answerText1: "START P/B", answerText2: "OFF" },
+      header: "Discountinued Engine Start On Ground1",
+      answers: [
+        { answerText1: "FUEL LEVER", answerText2: "SHUT", promptText: "If ITT rises rapidly and the start limit is likely to be exceeeded:" },
+        { answerText3: "START P/B", answerText4: "OFF" }
       ]
     },
     {
-      headerText: "Ground Range Selectors",
-      answerText: [
+      header:"Ground Range Selectors",
+      answers: [
         { answerText1: "GROUND RANGE SELECTORS", answerText2: "RELEASE" },
-        { answerText1: "POWER LEVERS", answerText2: "MOVE FORWARD UNTIL ALERT LIGHT GOES OFF" },
+        { answerText3: "POWER LEVERS", answerText4: "MOVE FORWARD UNTIL ALERT LIGHT GOES OFF" }
       ]
     },
     {
-      headerText: "Jet-Pipe Fire",
-      answerText: [
+      header: "Jet-Pipe Fire",
+      answers: [
         { answerText1: "FUEL LEVER", answerText2: "SHUT" },
-        { answerText1: "FUEL PUMPS", answerText2: "OFF" },
-        { answerText1: "START P/B", answerText2: "ON" },
-        { answerText1: "ENGINE SELECTOR", answerText2: "L OR R" },
-        { promptText: "After fire has been extinguished:", answerText1: "START P/B", answerText2: "OFF"},
+        { answerText3: "FUEL PUMPS", answerText4: "OFF" },
+        { answerText5: "START P/B", answerText6: "ON" },
+        { answerText7: "ENGINE SELECTOR", answerText8: "L OR R" },
+        { answerText9: "START P/B", answerText10: "OFF", promptText: "After fire has been extinguished:" }
       ]
     },
   ]
   
-  var defaultValues = {
-    name: "",
-    age: 0,
-    gender: "",
-    os: "",
-    favoriteNumber: 0,
-  };
+  const defaultValues = {};
 
   const [Questions, setQuestions] = useState(boldfaces);
-  const [randomNumber, setRandomNumber] = useState(0)
+  const [randomNumber, setRandomNumber] = useState(Math.floor(Math.random() *(Questions.length-1)))
   const [formValues, setFormValues] = useState(defaultValues)
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [failure, setFailure] = useState(false);
+  const [Openpop, setOpenpop] = useState(false);
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const timer = React.useRef();
 
-  const generateRandomNumber = () => {
-    const randomNumber = Math.floor(Math.random() * boldfaces.length);
-    setRandomNumber(randomNumber)
-    console.log()
-  }
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormValues({
-      ...formValues,
-      [name]: value,
-    });
+  const open = Boolean(anchorEl);
+  const id = open ? 'simple-popover' : undefined;
+  const { control, handleSubmit, reset } = useForm({
+    reValidateMode: "onBlur"
+  });
+  const transitionSx = {
+    ...(success && {
+      backgroundColor: alpha(green[500],0.5),
+    })
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    console.log(formValues);
+  
+  useEffect(()=>{
+    var items = {};
+
+    Questions[randomNumber].answers.forEach(obj => {
+      Object.keys(obj).forEach(key => {
+        if (key.startsWith('answerText')) {
+          items = { ...items, [key]: obj[key]}
+        }
+      }) 
+    });
+  setFormValues(items);
+  },[])
+    
+  useEffect(() => {
+    return () => {
+      clearTimeout(timer.current);
+    };
+  }, []);
+
+  const handleOnSubmit = (evt) => {
+    
+    forIn(evt, function(value, key) {
+      update(evt, key, function(value) { return value.toUpperCase(); })
+    });
+
+    //console.log(evt);
+    //console.log(formValues);
+
+    if (isEqual(evt, formValues)){
+          setSuccess(true);
+          setOpenpop(true);
+        timer.current = window.setTimeout(() => {
+          setSuccess(false);
+          setOpenpop(false);
+        }, 1000);
+        
+      if (Questions.length != 1) {
+        Questions.splice(randomNumber,1);
+      }
+    }else{
+          setFailure(true);
+          setOpenpop(true);
+        timer.current = window.setTimeout(() => {
+          setFailure(false);
+          setOpenpop(false);
+        }, 1000);
+        
+      if (Questions.length != 1) {
+        Questions.splice(randomNumber,1);
+      }
+    }
+    
+    //console.log( isEqual(evt, formValues) )
+    //console.log(Questions)
+    reset()
+    
+    const rndnum = Math.floor(Math.random() *(Questions.length-1))
+    setRandomNumber(rndnum);
+    setFormValues(defaultValues)
+
+      Questions[rndnum].answers.forEach(obj => {
+        Object.keys(obj).forEach(key => {
+          if (key.startsWith('answerText')) {
+            setFormValues(prev => ({...prev,[key]: obj[key]}));
+          }
+        }) 
+    });
   };
 
   return (
     <Container maxWidth="xl">
-      <form onSubmit={handleSubmit}>
-      <FormControl>
-    <Box
-      component="form"
-      sx={{
-        '& .MuiTextField-root': { m: 1, width: "90%" },
-      }}
-      noValidate
-      autoComplete="off"
-    >
-      <Typography variant="body1">{Questions[randomNumber].headerText}</Typography>
-              {Questions[randomNumber].answerText.map((ans) => (
-                <>
-                <Typography variant="body2">{ans.promptText}</Typography>
-                <Box
-                  sx={{display: 'flex' }
-                  }
-                  noValidate
-                  autoComplete="off"
-                >
-                  <TextField name={Object.keys(ans)[1]} id="outlined-basic" label="" variant="outlined" size="small" onChange={handleInputChange}/>
-                  <TextField name={Object.keys(ans)[2]} id="outlined-basic" label="" variant="outlined" size="small" onChange={handleInputChange}/>
-                </Box>
-                </>
-              ))}
-    </Box>
-    <Fab variant="extended" size="medium" onClick={generateRandomNumber} type="submit">
-    Submit
-    </Fab>
-    </FormControl>
-    </form>
+      <Backdrop
+        sx={[{zIndex: (theme) => theme.zIndex.drawer - 1,
+          backgroundColor: alpha(red[500],0.5)}, transitionSx]}
+        open={Openpop}
+      >
+        <Typography variant="h6">{success? "Correct" : null}{failure? "Wrong" : null}</Typography>
+      </Backdrop>
+      <Box
+        component="form"
+        onSubmit={handleSubmit(handleOnSubmit)}
+        sx={{
+          '& .MuiTextField-root': { m: 1, width: "90%" },
+        }}
+        noValidate
+        autoComplete="off"
+      >
+        <Typography variant="h6">{Questions[randomNumber].header}</Typography>
+                {Questions[randomNumber].answers.map(ans => (
+                  <>
+                  <Typography variant="body2">{ans.promptText}</Typography>
+                  <Box
+                    sx={{display: 'flex' }
+                    }
+                    noValidate
+                    autoComplete="off"
+                  >
+                    <Controller
+                control={control}
+                name={Object.keys(ans)[0]}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    variant="outlined"
+                    size="small"
+                    label=""
+                    inputProps={{ style: { textTransform: "uppercase" } }}
+                  />
+                )}
+              />
+              <Controller
+                control={control}
+                name={Object.keys(ans)[1]}
+                defaultValue=""
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    variant="outlined"
+                    size="small"
+                    label=""
+                    inputProps={{ style: { textTransform: "uppercase" } }}
+                  />
+                )}
+              />                  
+                  </Box>
+                  </>
+                ))}
+        <Fab variant="extended" size="medium" type="submit">
+          Submit
+        </Fab>
+      </Box>       
     </Container>
   );
-}
-
-export default Boldface;
+};
