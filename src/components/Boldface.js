@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef  } from "react";
 import { useForm, Controller } from "react-hook-form";
+import { useNavigate } from "react-router";
 import { alpha, Box, Container, Popover, Backdrop, Fab, Typography, TextField } from '@mui/material/';
+import MobileStepper from '@mui/material/MobileStepper';
 import { green, red } from "@mui/material/colors";
-import { isEqual, forIn, update, transform } from "lodash";
+import { isEqual, forIn, update } from "lodash";
 
 export default function Boldface() {
 
@@ -91,25 +93,21 @@ export default function Boldface() {
   const [Questions, setQuestions] = useState(boldfaces);
   const [randomNumber, setRandomNumber] = useState(Math.floor(Math.random() *(Questions.length-1)))
   const [formValues, setFormValues] = useState(defaultValues)
-  const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [failure, setFailure] = useState(false);
   const [Openpop, setOpenpop] = useState(false);
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const timer = React.useRef();
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [activeStep, setActiveStep] = useState(0);
+  const timer = useRef();
 
-  const open = Boolean(anchorEl);
-  const id = open ? 'simple-popover' : undefined;
+  const navigate = useNavigate();
+
   const { control, handleSubmit, reset } = useForm({
     reValidateMode: "onBlur"
   });
-  const transitionSx = {
-    ...(success && {
-      backgroundColor: alpha(green[500],0.5),
-    })
-  };
 
-  
+  const bgSx = {...(success && {backgroundColor: alpha(green[500],0.3),})};
+  const fontcolorSx = {...(success && {color: green[700]})};
+
   useEffect(()=>{
     var items = {};
 
@@ -139,27 +137,30 @@ export default function Boldface() {
     //console.log(formValues);
 
     if (isEqual(evt, formValues)){
+          setActiveStep((prevActiveStep) => prevActiveStep + 1);
+
           setSuccess(true);
           setOpenpop(true);
         timer.current = window.setTimeout(() => {
-          setSuccess(false);
           setOpenpop(false);
-        }, 1000);
+        }, 800);
         
+        timer.current = window.setTimeout(() => {
+          setSuccess(false);
+        }, 1000);
+
       if (Questions.length != 1) {
         Questions.splice(randomNumber,1);
+      }else{
+        navigate("/")
       }
     }else{
-          setFailure(true);
+          setSuccess(false);
           setOpenpop(true);
         timer.current = window.setTimeout(() => {
-          setFailure(false);
           setOpenpop(false);
+          setSuccess(false);
         }, 1000);
-        
-      if (Questions.length != 1) {
-        Questions.splice(randomNumber,1);
-      }
     }
     
     //console.log( isEqual(evt, formValues) )
@@ -180,23 +181,37 @@ export default function Boldface() {
   };
 
   return (
-    <Container maxWidth="xl">
+    <Container disableGutters={true} maxWidth="xl">
       <Backdrop
         sx={[{zIndex: (theme) => theme.zIndex.drawer - 1,
-          backgroundColor: alpha(red[500],0.5)}, transitionSx]}
+          backgroundColor: alpha(red[500],0.3)}, bgSx]}
         open={Openpop}
-      >
-        <Typography variant="h6">{success? "Correct" : null}{failure? "Wrong" : null}</Typography>
-      </Backdrop>
+      ></Backdrop>
       <Box
         component="form"
         onSubmit={handleSubmit(handleOnSubmit)}
         sx={{
-          '& .MuiTextField-root': { m: 1, width: "90%" },
+          '& .MuiTextField-root': { m: 1, width: "90%", position:"relative" },
+          '& .MuiBackdrop-root': {position:"absolute"},
+          '& .MuiMobileStepper-progress':{backgroundColor: green[900], width:"100%", "& *":{ backgroundColor: green[500]}},
+          position: "relative"
         }}
         noValidate
         autoComplete="off"
       >
+        <Backdrop
+        sx={{zIndex: (theme) => theme.zIndex.drawer - 1,
+          backgroundColor: "transparent"}}
+        open={Openpop}
+      >
+        <Typography sx={[{fontSize:"5rem", backgroundColor:"transparent", color: red[700]},fontcolorSx]}>{success? "Correct" : "You Can Do Better"}</Typography>
+      </Backdrop>
+        <MobileStepper
+      variant="progress"
+      steps={12}
+      position="static"
+      activeStep={activeStep}
+      sx={{ width: "100%" , flexGrow: 1 }}></MobileStepper>
         <Typography variant="h6">{Questions[randomNumber].header}</Typography>
                 {Questions[randomNumber].answers.map(ans => (
                   <>
@@ -218,7 +233,8 @@ export default function Boldface() {
                         variant="outlined"
                         size="small"
                         label=""
-                        inputProps={{ style: { textTransform: "uppercase" } }}
+                        inputProps={{ style: { fontSize: "0.8rem", textTransform: "uppercase" } }}
+                        multiline
                       />
                     )}
                   />
@@ -233,7 +249,8 @@ export default function Boldface() {
                         variant="outlined"
                         size="small"
                         label=""
-                        inputProps={{ style: { textTransform: "uppercase" } }}
+                        inputProps={{ style: { fontSize: "0.8rem", textTransform: "uppercase" } }}
+                        multiline
                       />
                 )}
               />                  

@@ -28,7 +28,6 @@ const Overview =() => {
       }
     };
     fetchquiz();
-
     // empty dependency array means this effect will only run once (like componentDidMount in classes)
   }, []);
 
@@ -45,7 +44,7 @@ const Overview =() => {
     <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'flex' } }}>
       <h1>Overview</h1>
       <h2>
-       {objs}
+
         </h2>
     </Box>
   );
