@@ -186,8 +186,6 @@ export default function Boldface() {
     });
   };
 
-
-  
   return (
     <Container sx={{
       '& .MuiBackdrop-root': { position:"absolute", top:"3.5rem"}}}disableGutters={true} maxWidth="xl">
@@ -277,6 +275,7 @@ export default function Boldface() {
         <Fab sx={{"margin-top":"0.5rem"}}variant="extended" size="medium" type="submit">
           Submit
         </Fab>
+        
         
       </Box>       
     </Container>
