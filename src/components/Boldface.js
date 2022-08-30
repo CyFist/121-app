@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef  } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { useNavigate } from "react-router";
-import { alpha, Box, Container, Popover, Backdrop, Fab, Typography, TextField } from '@mui/material/';
-import MobileStepper from '@mui/material/MobileStepper';
-import { green, red } from "@mui/material/colors";
+import { alpha, Box, Container, Stepper, Step, StepLabel, Backdrop, Fab, Typography, TextField } from '@mui/material/';
+import { teal, pink, grey } from "@mui/material/colors";
 import { isEqual, forIn, update } from "lodash";
+import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
+import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 
 export default function Boldface() {
 
@@ -56,17 +57,24 @@ export default function Boldface() {
       ]
     },
     {
-      header: "Discountinued Engine Start On Ground1",
+      header: "Discountinued Engine Start On Ground",
       answers: [
         { answerText1: "FUEL LEVER", answerText2: "SHUT", promptText: "If no light-up within 10 sec after advancing the fuel lever to START:" },
         { answerText3: "START P/B", answerText4: "OFF", promptText: "15 sec after shutting the fuel lever:" }
       ]
     },
     {
-      header: "Discountinued Engine Start On Ground1",
+      header: "Discountinued Engine Start On Ground",
       answers: [
         { answerText1: "FUEL LEVER", answerText2: "SHUT", promptText: "If ITT rises rapidly and the start limit is likely to be exceeeded:" },
         { answerText3: "START P/B", answerText4: "OFF" }
+      ]
+    },
+    {
+      header: "Emergency Descent",
+      answers: [
+        { answerText1: "POWER LEVERS", answerText2: "FLT IDLE" },
+        { answerText3: "SPEED", answerText4: "VMO" }
       ]
     },
     {
@@ -95,7 +103,6 @@ export default function Boldface() {
   const [formValues, setFormValues] = useState(defaultValues)
   const [success, setSuccess] = useState(false);
   const [Openpop, setOpenpop] = useState(false);
-  const [anchorEl, setAnchorEl] = useState(null);
   const [activeStep, setActiveStep] = useState(0);
   const timer = useRef();
 
@@ -105,8 +112,7 @@ export default function Boldface() {
     reValidateMode: "onBlur"
   });
 
-  const bgSx = {...(success && {backgroundColor: alpha(green[500],0.3),})};
-  const fontcolorSx = {...(success && {color: green[700]})};
+  const bgSx = {...(success && {backgroundColor: alpha(teal[800],0.9),})};
 
   useEffect(()=>{
     var items = {};
@@ -149,7 +155,7 @@ export default function Boldface() {
           setSuccess(false);
         }, 1000);
 
-      if (Questions.length != 1) {
+      if (Questions.length !== 1) {
         Questions.splice(randomNumber,1);
       }else{
         navigate("/")
@@ -181,10 +187,11 @@ export default function Boldface() {
   };
 
   return (
-    <Container disableGutters={true} maxWidth="xl">
+    <Container sx={{
+      '& .MuiBackdrop-root': { position:"absolute", top:"3.5rem"}}}disableGutters={true} maxWidth="xl">
       <Backdrop
         sx={[{zIndex: (theme) => theme.zIndex.drawer - 1,
-          backgroundColor: alpha(red[500],0.3)}, bgSx]}
+          backgroundColor: alpha(pink[900],0.9)}, bgSx]}
         open={Openpop}
       ></Backdrop>
       <Box
@@ -192,8 +199,12 @@ export default function Boldface() {
         onSubmit={handleSubmit(handleOnSubmit)}
         sx={{
           '& .MuiTextField-root': { m: 1, width: "90%", position:"relative" },
-          '& .MuiBackdrop-root': {position:"absolute"},
-          '& .MuiMobileStepper-progress':{backgroundColor: green[900], width:"100%", "& *":{ backgroundColor: green[500]}},
+          '& .MuiBackdrop-root': { position:"absolute", "flex-direction": "column" },
+          '& .MuiStep-root': {padding:"0", width: "100%"},  
+          '& .MuiStepLabel-iconContainer': {padding: "0.2rem"},
+          '& .MuiStepLabel-root': {"flex-direction": "column"},
+          '& .MuiStepIcon-root.Mui-active': {color: teal[200]},
+          '& .MuiStepIcon-root.Mui-completed': {color: teal[400]},
           position: "relative"
         }}
         noValidate
@@ -203,15 +214,20 @@ export default function Boldface() {
         sx={{zIndex: (theme) => theme.zIndex.drawer - 1,
           backgroundColor: "transparent"}}
         open={Openpop}
-      >
-        <Typography sx={[{fontSize:"5rem", backgroundColor:"transparent", color: red[700]},fontcolorSx]}>{success? "Correct" : "You Can Do Better"}</Typography>
+      >{success? <CheckCircleOutlinedIcon sx={{fontSize:"6rem"}}/> : <CancelOutlinedIcon sx={{fontSize:"6rem"}}/>}
+        <Typography sx={{fontSize:"3rem", backgroundColor:"transparent", color: grey[300]}}>{success? "Correct" : "Incorrect"}</Typography>
       </Backdrop>
-        <MobileStepper
-      variant="progress"
-      steps={12}
-      position="static"
-      activeStep={activeStep}
-      sx={{ width: "100%" , flexGrow: 1 }}></MobileStepper>
+      <Stepper
+      activeStep={activeStep} connector={false}>        
+      {boldfaces.map((index) => {
+        const stepProps = {};
+        const labelProps = {};
+        return (
+          <Step {...stepProps}>
+            <StepLabel {...labelProps}></StepLabel>
+          </Step>
+        );
+      })}</Stepper>
         <Typography variant="h6">{Questions[randomNumber].header}</Typography>
                 {Questions[randomNumber].answers.map(ans => (
                   <>
@@ -250,16 +266,16 @@ export default function Boldface() {
                         size="small"
                         label=""
                         inputProps={{ style: { fontSize: "0.8rem", textTransform: "uppercase" } }}
-                        multiline
                       />
                 )}
               />                  
                   </Box>
                   </>
                 ))}
-        <Fab variant="extended" size="medium" type="submit">
+        <Fab sx={{"margin-top":"0.5rem"}}variant="extended" size="medium" type="submit">
           Submit
         </Fab>
+        
       </Box>       
     </Container>
   );
