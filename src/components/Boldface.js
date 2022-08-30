@@ -250,7 +250,6 @@ export default function Boldface() {
                         size="small"
                         label=""
                         inputProps={{ style: { fontSize: "0.8rem", textTransform: "uppercase" } }}
-                        multiline
                       />
                     )}
                   />
@@ -276,7 +275,7 @@ export default function Boldface() {
           Submit
         </Fab>
         
-        
+
       </Box>       
     </Container>
   );
