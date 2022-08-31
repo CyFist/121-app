@@ -6,7 +6,7 @@ import { teal, pink, grey } from "@mui/material/colors";
 import { isEqual, forIn, update } from "lodash";
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
-import axios from "../utils/api.client";
+import axxios from "../utils/api_client";
 import boldfaces from "../utils/boldfaces.json"
 
 export default function Boldface() {

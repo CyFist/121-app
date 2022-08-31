@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "../utils/api.client";
+import axxios from "../utils/api_client";
 import { alpha, Box, Grid, Paper, Button, Typography } from '@mui/material';
 import { teal, pink, grey } from "@mui/material/colors";
 import { styled } from '@mui/material/styles';
@@ -19,7 +19,7 @@ const Overview =() => {
     const getData = async () => {
       setLoading(true);
       try {
-        const { data } = await axios.get('/records')
+        const { data } = await axxios.get('/records')
         sessionStorage.setItem('records', JSON.stringify(data));
         setData(data);
         const test = sessionStorage.getItem('records');
@@ -49,7 +49,7 @@ const Overview =() => {
       }
 
       try {
-        await axios.put(`/records/${id}`, data);
+        await axxios.put(`/records/${id}`, data);
         
       } catch (error) {
         setLoading(false);
@@ -71,7 +71,7 @@ const Overview =() => {
       setLoading(true);
       setError("");
       try {
-        await axios.post("/records", data);
+        await axxios.post("/records", data);
 
       } catch (error) {
         setLoading(false);

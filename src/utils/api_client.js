@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export default axios.create({
+const axxios = axios.create({
   baseURL: "https://onetwoone-ca88.restdb.io/rest",
   headers: {
     "Content-Type": "application/json",
@@ -9,3 +9,5 @@ export default axios.create({
   },
 
 });
+
+export default axxios
