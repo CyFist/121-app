@@ -16,11 +16,14 @@ const darkTheme = createTheme({
 });
 
 function App() {
+
+  const Username = sessionStorage.getItem('User')
+
   return (
     <div className="App">
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
-      <ResponsiveAppBar />
+      <ResponsiveAppBar User={Username} />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="Overview" element={<Overview />} />

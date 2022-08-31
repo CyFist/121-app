@@ -18,7 +18,8 @@ import { Link } from 'react-router-dom'
 const pages = ['Home', 'Overview', 'Boldface', 'Quiz'];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
-const ResponsiveAppBar = () => {
+
+const ResponsiveAppBar = ({User}) => {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
@@ -141,6 +142,9 @@ const ResponsiveAppBar = () => {
                 </Link>
               </Button>
             ))}
+          </Box>
+          <Box>
+            {User}
           </Box>
         </Toolbar>
       </Container>
