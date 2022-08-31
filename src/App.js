@@ -17,7 +17,7 @@ const darkTheme = createTheme({
 
 function App() {
 
-  const Username = sessionStorage.getItem('User')
+  var Username = sessionStorage.getItem('User')
 
   return (
     <div className="App">
