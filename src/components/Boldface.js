@@ -1,15 +1,16 @@
 import React, { useState, useEffect, useRef  } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { useNavigate } from "react-router";
+import  restdb  from "../utils/api_client";
 import { alpha, Box, Container, Stepper, Step, StepLabel, Backdrop, Fab, Typography, TextField } from '@mui/material/';
 import { teal, pink, grey } from "@mui/material/colors";
 import { isEqual, forIn, update } from "lodash";
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
-import axxios from "../utils/api_client";
 import boldfaces from "../utils/boldfaces.json"
+import dayjs from 'dayjs'
 
-export default function Boldface() {
+export default function Boldface({ Username, setUsername, id }) {
 
   const defaultValues = {};
 
@@ -17,6 +18,7 @@ export default function Boldface() {
   const [randomNumber, setRandomNumber] = useState(Math.floor(Math.random() *(Questions.length-1)))
   const [formValues, setFormValues] = useState(defaultValues)
   const [success, setSuccess] = useState(false);
+  const [error, setError] = useState("");
   const [Openpop, setOpenpop] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const timer = useRef();
@@ -48,6 +50,24 @@ export default function Boldface() {
     };
   }, []);
 
+  const putData = async () => {
+    setError("");
+
+    const data = {
+      "_id": Username._id,
+      "User": Username.User,
+      "Date": dayjs().toISOString()
+    }
+
+    try {
+      await restdb.put(`/records/${Username._id}`, data);
+      
+    } catch (error) {
+      setError("Something went wrong!");
+      return console.log(error);
+    }
+};
+
   const handleOnSubmit = (evt) => {
     
     forIn(evt, function(value, key) {
@@ -73,7 +93,8 @@ export default function Boldface() {
       if (Questions.length !== 1) {
         Questions.splice(randomNumber,1);
       }else{
-        navigate("/")
+        putData()
+        navigate("/Overview")
       }
     }else{
           setSuccess(false);
@@ -134,7 +155,7 @@ export default function Boldface() {
       </Backdrop>
       <Stepper
       activeStep={activeStep} connector={false}>        
-      {boldfaces.map((index) => {
+      {[1,2,3,4,5,6,7,8,9,10,11,12].map((index) => {
         const stepProps = {};
         const labelProps = {};
         return (
