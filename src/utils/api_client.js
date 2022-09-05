@@ -13,6 +13,6 @@ const restdb = axios.create({
 
 });
 // Eventsource endpoint
-//const realtimeURL = `https://onetwoone-ca88.restdb.io/realtime?apikey=${apikey}`
+const realtimeURL = `https://onetwoone-ca88.restdb.io/realtime?apikey=${apikey}`
 
-export default restdb
+export { restdb, realtimeURL }

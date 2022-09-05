@@ -12,7 +12,7 @@ import MenuItem from '@mui/material/MenuItem';
 
 import { Link } from 'react-router-dom'
 
-const pages = ['Home', 'Overview', 'Boldface', 'Quiz'];
+const pages = ['Overview', 'Boldface', 'Quiz'];
 
 const ResponsiveAppBar = ({ Username, setUsername }) => {
   const [anchorElNav, setAnchorElNav] = useState(null);
@@ -38,16 +38,13 @@ const ResponsiveAppBar = ({ Username, setUsername }) => {
               display: { xs: 'none', md: 'flex' },
               fontFamily: 'monospace',
               fontWeight: 700,
+              width: "12rem",
               letterSpacing: '.3rem',
               color: 'inherit',
               textDecoration: 'none',
             }}
           >
-            <Link 
-               style={{textDecoration:"none", color:"white"}}
-               to="/">
-                OneTwoOne
-            </Link>
+                {Username.User}
           </Typography>
 
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
@@ -96,24 +93,19 @@ const ResponsiveAppBar = ({ Username, setUsername }) => {
             variant="h5"
             noWrap
             component="a"
-            href="/"
             sx={{
               mr: 2,
               display: { xs: 'flex', md: 'none' },
               flexGrow: 1,
               fontFamily: 'monospace',
               fontWeight: 700,
+              width: "7rem",
               letterSpacing: '.3rem',
               color: 'inherit',
               textDecoration: 'none',
             }}
           >
-            <Link 
-               style={{textDecoration:"none", color:"white"}}
-               to="/">
-                OneTwoOne
-            </Link>
-            
+                {Username.User}
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             {pages.map((page) => (
@@ -129,9 +121,6 @@ const ResponsiveAppBar = ({ Username, setUsername }) => {
                 </Link>
               </Button>
             ))}
-          </Box>
-          <Box>
-            {Username.User}
           </Box>
         </Toolbar>
       </Container>

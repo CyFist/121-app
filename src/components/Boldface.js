@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef  } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { useNavigate } from "react-router";
-import  restdb  from "../utils/api_client";
-import { alpha, Box, Container, Stepper, Step, StepLabel, Backdrop, Fab, Typography, TextField } from '@mui/material/';
+import { restdb }  from "../utils/api_client";
+import { alpha, Box, Container, Stepper, Step, StepLabel, Backdrop, Fab, Typography, TextField, Grid } from '@mui/material/';
 import { teal, pink, grey } from "@mui/material/colors";
 import { isEqual, forIn, update } from "lodash";
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
@@ -10,7 +10,8 @@ import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import boldfaces from "../utils/boldfaces.json"
 import dayjs from 'dayjs'
 
-export default function Boldface({ Username, setUsername, id }) {
+
+export default function Boldface({ UserObj, setUserObj, id }) {
 
   const defaultValues = {};
 
@@ -21,8 +22,10 @@ export default function Boldface({ Username, setUsername, id }) {
   const [error, setError] = useState("");
   const [Openpop, setOpenpop] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
+  const [idx, setIdx] = useState({upd:true,index:0  });
   const timer = useRef();
-
+  const myRefs = useRef([]);
+  const objs = useRef([])
   const navigate = useNavigate();
 
   const { control, handleSubmit, reset } = useForm({
@@ -50,17 +53,21 @@ export default function Boldface({ Username, setUsername, id }) {
     };
   }, []);
 
+  useEffect(() => {
+    myRefs.current[idx.index].focus();
+  }, [idx.index]);
+
   const putData = async () => {
     setError("");
 
-    const data = {
-      "_id": Username._id,
-      "User": Username.User,
+    const body = {
+      "_id": UserObj._id,
+      "User": UserObj.User,
       "Date": dayjs().toISOString()
     }
 
     try {
-      await restdb.put(`/records/${Username._id}`, data);
+      await restdb.put(`/records/${UserObj._id}`, body);
       
     } catch (error) {
       setError("Something went wrong!");
@@ -113,14 +120,57 @@ export default function Boldface({ Username, setUsername, id }) {
     setRandomNumber(rndnum);
     setFormValues(defaultValues)
 
-      Questions[rndnum].answers.forEach(obj => {
-        Object.keys(obj).forEach(key => {
-          if (key.startsWith('answerText')) {
-            setFormValues(prev => ({...prev,[key]: obj[key]}));
+    var i = 0
+        var track = 'false'
+        var setf = 'false'
+      Questions[rndnum].answers.forEach((obj,index) => {
+        
+          if (Object.keys(obj)[0].startsWith('answerText')) {
+              track = 'true'
+              if(track == 'true' && setf == 'false'){
+                setIdx({...idx,
+                  index: index})
+                  myRefs.current[index].focus();
+                setf = 'true'
+              }
+            setFormValues(prev => ({...prev,[Object.keys(obj)[0]]: obj[Object.keys(obj)[0]]}));
           }
-        }) 
     });
+    
   };
+  
+  objs.current = Questions[randomNumber].answers.map((ans, index) => {
+                    if(Object.keys(ans)[0].startsWith('prompt')){
+                      return <>
+                            <Grid item xs={12}>
+                              <Typography variant="body2">{ans.promptText}</Typography>
+                            </Grid>
+                          </>
+                    }else{
+                      return <>
+                              <Grid item xs={6}> 
+                                <Controller
+                                  control={control}
+                                  name={Object.keys(ans)[0]}
+                                  defaultValue=""
+                                  render={({ field }) => (
+                                    <TextField
+                                      {...field}
+                                      fullWidth
+                                      variant="outlined"
+                                      size="small"
+                                      label=""
+                                      multiline
+                                      inputProps={{ style: { fontSize: "0.75rem", textTransform: "uppercase" } }}
+                                      inputRef={(el) => (myRefs.current[index] = el)}
+
+                                    />
+                                  )}
+                                />
+                              </Grid>
+                            </>
+                    }
+                })
 
   return (
     <Container sx={{
@@ -134,7 +184,7 @@ export default function Boldface({ Username, setUsername, id }) {
         component="form"
         onSubmit={handleSubmit(handleOnSubmit)}
         sx={{
-          '& .MuiTextField-root': { m: 1, width: "90%", position:"relative" },
+          '& .MuiInputBase-root': {padding:"0.3rem 0.5rem"},
           '& .MuiBackdrop-root': { position:"absolute", "flex-direction": "column" },
           '& .MuiStep-root': {padding:"0", width: "100%"},  
           '& .MuiStepLabel-iconContainer': {padding: "0.2rem"},
@@ -153,6 +203,8 @@ export default function Boldface({ Username, setUsername, id }) {
       >{success? <CheckCircleOutlinedIcon sx={{fontSize:"6rem"}}/> : <CancelOutlinedIcon sx={{fontSize:"6rem"}}/>}
         <Typography sx={{fontSize:"3rem", backgroundColor:"transparent", color: grey[300]}}>{success? "Correct" : "Incorrect"}</Typography>
       </Backdrop>
+      <Box sx={{
+              display: { md: 'flex' }}}>
       <Stepper
       activeStep={activeStep} connector={false}>        
       {[1,2,3,4,5,6,7,8,9,10,11,12].map((index) => {
@@ -164,49 +216,11 @@ export default function Boldface({ Username, setUsername, id }) {
           </Step>
         );
       })}</Stepper>
+      </Box>
         <Typography variant="h6">{Questions[randomNumber].header}</Typography>
-                {Questions[randomNumber].answers.map(ans => (
-                  <>
-                  <Typography variant="body2">{ans.promptText}</Typography>
-                  <Box
-                    sx={{display: 'flex' }
-                    }
-                    noValidate
-                    autoComplete="off"
-                  >
-                    <Controller
-                    control={control}
-                    name={Object.keys(ans)[0]}
-                    defaultValue=""
-                    render={({ field }) => (
-                      <TextField
-                        {...field}
-                        fullWidth
-                        variant="outlined"
-                        size="small"
-                        label=""
-                        inputProps={{ style: { fontSize: "0.8rem", textTransform: "uppercase" } }}
-                      />
-                    )}
-                  />
-                  <Controller
-                    control={control}
-                    name={Object.keys(ans)[1]}
-                    defaultValue=""
-                    render={({ field }) => (
-                      <TextField
-                        {...field}
-                        fullWidth
-                        variant="outlined"
-                        size="small"
-                        label=""
-                        inputProps={{ style: { fontSize: "0.8rem", textTransform: "uppercase" } }}
-                      />
-                )}
-              />                  
-                  </Box>
-                  </>
-                ))}
+          <Grid sx={{padding:"0.3rem"}}container rowSpacing={1} columnSpacing={{ xs: 1, sm: 1, md: 1 }}>
+            {objs.current}
+          </Grid>
         <Fab sx={{"margin-top":"0.5rem"}}variant="extended" size="medium" type="submit">
           Submit
         </Fab>
