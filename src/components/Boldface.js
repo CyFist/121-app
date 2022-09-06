@@ -22,7 +22,8 @@ export default function Boldface({ UserObj, setUserObj, id }) {
   const [error, setError] = useState("");
   const [Openpop, setOpenpop] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
-  const [idx, setIdx] = useState({upd:true,index:0  });
+  const [idx, setIdx] = useState(0);
+  const [Counter, setCounter] = useState(0);
   const timer = useRef();
   const myRefs = useRef([]);
   const objs = useRef([])
@@ -54,8 +55,13 @@ export default function Boldface({ UserObj, setUserObj, id }) {
   }, []);
 
   useEffect(() => {
-    myRefs.current[idx.index].focus();
-  }, [idx.index]);
+    const filt_Refs = myRefs.current.filter(element => {
+      return element !== null;
+    });
+    
+    filt_Refs[0].focus()
+
+  }, [Counter]);
 
   const putData = async () => {
     setError("");
@@ -77,12 +83,11 @@ export default function Boldface({ UserObj, setUserObj, id }) {
 
   const handleOnSubmit = (evt) => {
     
+    setCounter(Counter + 1) //track submission of form to trigger setfocus
+
     forIn(evt, function(value, key) {
       update(evt, key, function(value) { return value.toUpperCase(); })
     });
-
-    //console.log(evt);
-    //console.log(formValues);
 
     if (isEqual(evt, formValues)){
           setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -111,11 +116,9 @@ export default function Boldface({ UserObj, setUserObj, id }) {
           setSuccess(false);
         }, 1000);
     }
-    
-    //console.log( isEqual(evt, formValues) )
-    //console.log(Questions)
+
     reset()
-    
+
     const rndnum = Math.floor(Math.random() *(Questions.length-1))
     setRandomNumber(rndnum);
     setFormValues(defaultValues)
@@ -130,7 +133,6 @@ export default function Boldface({ UserObj, setUserObj, id }) {
               if(track == 'true' && setf == 'false'){
                 setIdx({...idx,
                   index: index})
-                  myRefs.current[index].focus();
                 setf = 'true'
               }
             setFormValues(prev => ({...prev,[Object.keys(obj)[0]]: obj[Object.keys(obj)[0]]}));
@@ -155,6 +157,14 @@ export default function Boldface({ UserObj, setUserObj, id }) {
                                   defaultValue=""
                                   render={({ field }) => (
                                     <TextField
+                                      sx={{'& .MuiOutlinedInput-root': {
+                                        '&:hover fieldset': {
+                                          borderColor: alpha(teal['A400'],0.9),
+                                        },
+                                        '&.Mui-focused fieldset': {
+                                          borderColor: alpha(teal['A400'],0.9),
+                                          backgroundColor: alpha(grey[100],0.2),
+                                        },}}}
                                       {...field}
                                       fullWidth
                                       variant="outlined"
@@ -174,7 +184,7 @@ export default function Boldface({ UserObj, setUserObj, id }) {
 
   return (
     <Container sx={{
-      '& .MuiBackdrop-root': { position:"absolute", top:"3.5rem"}}}disableGutters={true} maxWidth="xl">
+      '& .MuiBackdrop-root': { position:"absolute", top:"3.5rem"}}} disableGutters={true} maxWidth="xl">
       <Backdrop
         sx={[{zIndex: (theme) => theme.zIndex.drawer - 1,
           backgroundColor: alpha(pink[900],0.9)}, bgSx]}

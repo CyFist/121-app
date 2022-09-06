@@ -1,19 +1,20 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useForm, Controller } from "react-hook-form";
 import { restdb, realtimeURL } from "../utils/api_client";
 import { useNavigate } from "react-router";
 import { alpha, Box, Grid, ButtonGroup, Button, Typography, TextField } from '@mui/material';
 import Modal from '@mui/material/Modal';
 import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
 import PersonRemoveAlt1OutlinedIcon from '@mui/icons-material/PersonRemoveAlt1Outlined';
 import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
-import Tooltip from '@mui/material/Tooltip';
 import { teal, pink, grey } from "@mui/material/colors";
 import { styled } from '@mui/material/styles';
+import { filter } from "lodash";
 import dayjs from 'dayjs'
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
 import isoWeek from 'dayjs/plugin/isoWeek'
+import localeData from 'dayjs/plugin/localeData'
+dayjs.extend(localeData)
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isoWeek)
 
@@ -36,12 +37,7 @@ const Overview = ({ UserObj, setUserObj, Data }) => {
   const [Valid, setValid] = useState(false);
   const [open, setOpen] = useState(false);
   const [ModalTitle, setModalTitle] = useState("");
-  const [User, setUser] = useState('');
-
-  const handleChange = (event: SelectChangeEvent) => {
-    setUser(event.target.value);
-  };
-
+  const textfieldref = useRef()
 
   const handleOpen = (titletext) => {
     setModalTitle(titletext)
@@ -51,28 +47,41 @@ const Overview = ({ UserObj, setUserObj, Data }) => {
   
   const objs = useRef(Data)
 
-  const postData = async () => {
-
-    const data = {
-      "User": 'XMOS',
-      "Date": new Date().toISOString()
-    }
-      setError("");
+  const UpdateRestDB = async (User,updatetype) => {
+    
+    setError("");
+    
+    const UserData = filter(Data, ['User', User])
+      console.log(UserData.length)
       try {
-        await restdb.post("/records", data);
-
+        if (updatetype==='Add'){
+          if (UserData.length===0){
+            const data = {
+              "User": User.toUpperCase(),
+              "Date": null
+            }
+            console.log('added')
+            await restdb.post("/records", data);
+          }
+        } else if (updatetype==='Remove'){
+          const id = UserData[0]._id
+          console.log('removed')
+          await restdb.delete(`/records/${id}`);
+        }
       } catch (error) {
         setError("Something went wrong!");
         return console.log(error);
       }
+      setOpen(false)
   };
-
-
   
   const handleOnClick = (obj) => {
     sessionStorage.setItem('User', obj); 
     setUserObj(obj);
-    if (!dayjs(obj.Date).isSameOrAfter(dayjs().day(-6))){
+
+    //console.log(dayjs(obj.Date).isSameOrAfter(dayjs().day(-6)));
+    if (!dayjs(obj.Date).isSameOrAfter(dayjs().day(0).set('hour', 23).set('minute', 59).set('second', 59))){
+      
       navigate("/Boldface")
     }
     //console.log(sessionStorage.getItem('User'));
@@ -81,7 +90,7 @@ const Overview = ({ UserObj, setUserObj, Data }) => {
     objs.current = Data.map((obj, idx) => {
 
       var bgclr = alpha(pink[400],0.4);
-      var valid = (dayjs(obj.Date).isSameOrAfter(dayjs().day(-6)))
+      var valid = (dayjs(obj.Date).isSameOrAfter(dayjs().day(0).set('hour', 23).set('minute', 59).set('second', 59)))
       
       const PersButton = styled(Button)(({ theme }) => ({
         backgroundColor: valid? alpha(teal[700],0.5) : alpha(pink[800],0.5),
@@ -103,7 +112,7 @@ const Overview = ({ UserObj, setUserObj, Data }) => {
                     {obj.User}
                   </Typography>
                   <Typography variant="body2" color={grey[300]}>
-                    {dayjs(obj.Date).format('DD MMM YY')} 
+                    {obj.Date === null? "-": dayjs(obj.Date).format('DD MMM YY')}
                   </Typography>
               </PersButton>
             </Grid>
@@ -140,29 +149,39 @@ const Overview = ({ UserObj, setUserObj, Data }) => {
           aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"
         >
-            <Box sx={style}>
+            <Box 
+            sx={style}>
               <Typography id="modal-modal-title" variant="h6" component="h2">
                 {ModalTitle} User
               </Typography>
               <TextField
-                  select={(ModalTitle=="Remove")? true : false}
+                  sx={{'& label.Mui-focused': {
+                    color: alpha(teal['A400'],0.9),
+                  },'& .MuiOutlinedInput-root': {
+                    '&:hover fieldset': {
+                      borderColor: alpha(teal['A400'],0.9),
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: alpha(teal['A400'],0.9),
+                      //backgroundColor: alpha(grey[100],0.2),
+                    },}}}
+                  select={(ModalTitle==="Remove")? true : false}
                   fullWidth
                   defaultValue=""
-                  label={(ModalTitle=="Remove")? "Select User" : "User"}
+                  label={(ModalTitle==="Remove")? "Select User" : "User"}
+                  inputProps={{ style: { textTransform: "uppercase" } }}
+                  inputRef={textfieldref}
                 >
-                {(ModalTitle=="Remove")? 
-                  <><MenuItem value="">
-                    <em>None</em>
-                  </MenuItem>
-                  {Data.map((obj) => (
+                {(ModalTitle==="Remove")? 
+                  Data.map((obj) => (
                     <MenuItem value={obj.User}>{obj.User}</MenuItem>
-                  ))}</>
+                  ))
                  : ""}
                  </TextField>
-              <Button fullWidth sx={{margin:'0.3rem 0', 
+              <Button fullWidth sx={{margin:'1rem 0', 
                 borderColor: "whitesmoke",
                 color: "white",
-                '&:hover': { backgroundColor: alpha(grey[300],0.5), borderColor: "whitesmoke"}}}variant="outlined">Sumbit</Button>
+                '&:hover': { backgroundColor: alpha(grey[300],0.5), borderColor: "whitesmoke"}}} variant="outlined" onClick={() => { UpdateRestDB(textfieldref.current.value, ModalTitle) }}>Sumbit</Button>
             </Box>
         </Modal>
         </Grid>        
@@ -173,6 +192,3 @@ const Overview = ({ UserObj, setUserObj, Data }) => {
   }
 
 export default Overview;
-
-//      <Button onClick={() => { putData();}}>put data</Button>
-//<Button onClick={() => { postData();}}>post data</Button>

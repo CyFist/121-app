@@ -45,13 +45,21 @@ function App() {
   const [error, setError] = useState("");
 
   eventSource.addEventListener('put', event => {
-    console.log(event)
-    //alert(`put ${JSON.parse(event.data).idlist}`);
+    console.log('getdata')
+    getData();
+  }, false);
+  
+  eventSource.addEventListener('post', event => {
+    console.log('getdata')
+    getData();
+  }, false);
+
+  eventSource.addEventListener('delete', event => {
+    console.log('getdata')
     getData();
   }, false);
 
   useEffect(() => {
-    //setData([]);
     setData(JSON.parse(localStorage.getItem('records')));
     // GET request using axios inside useEffect React hook
     getData();
@@ -60,7 +68,7 @@ function App() {
   const getData = async () => {
     setLoading(true);
     try {
-      const { data } = await restdb.get('/records')
+      const { data } = await restdb.get('/records?q={}&h={"$orderby": {"Date": -1, "User": 1 }}')
       console.log(data)
       localStorage.setItem('records', JSON.stringify(data));
       setData(data);
