@@ -180,8 +180,8 @@ export default function Boldface({ UserObj, setUserObj, id }) {
                                           
                                           const last_Refs = findLast(myRefs.current, element => {
                                             return element !== null;
-                                          }, index+1);
-
+                                          });
+                                          
                                           if(current_Refs===last_Refs){
                                             handleOnSubmit()                                           
                                           }else{

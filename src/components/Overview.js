@@ -51,7 +51,7 @@ const Overview = ({ UserObj, setUserObj, Data }) => {
     
     setError("");
     
-    const UserData = filter(Data, ['User', User])
+    const UserData = filter(Data, ['User', User.toUpperCase()])
       console.log(UserData.length)
       try {
         if (updatetype==='Add'){
