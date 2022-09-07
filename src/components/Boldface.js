@@ -129,7 +129,7 @@ export default function Boldface({ UserObj, setUserObj, id }) {
         
           if (Object.keys(obj)[0].startsWith('answerText')) {
               track = 'true'
-              if(track == 'true' && setf == 'false'){
+              if(track === 'true' && setf == 'false'){
                 setIdx({...idx,
                   index: index})
                 setf = 'true'
@@ -195,6 +195,7 @@ export default function Boldface({ UserObj, setUserObj, id }) {
                                       size="small"
                                       label=""
                                       multiline
+                                      required
                                       inputProps={{ style: { fontSize: "0.75rem", textTransform: "uppercase" } }}
                                       inputRef={(el) => (myRefs.current[index] = el)}
 
