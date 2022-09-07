@@ -69,7 +69,7 @@ function App() {
     setLoading(true);
     try {
       const { data } = await restdb.get('/records?q={}&h={"$orderby": {"Date": -1, "User": 1 }}')
-      console.log(data)
+      //console.log(data)
       localStorage.setItem('records', JSON.stringify(data));
       setData(data);
       setLoading(false);

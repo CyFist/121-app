@@ -4,7 +4,7 @@ import { useNavigate } from "react-router";
 import { restdb }  from "../utils/api_client";
 import { alpha, Box, Container, Stepper, Step, StepLabel, Backdrop, Fab, Typography, TextField, Grid } from '@mui/material/';
 import { teal, pink, grey } from "@mui/material/colors";
-import { isEqual, forIn, update } from "lodash";
+import { isEqual, forIn, update, find, findLast } from "lodash";
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import boldfaces from "../utils/boldfaces.json"
@@ -123,7 +123,6 @@ export default function Boldface({ UserObj, setUserObj, id }) {
     setRandomNumber(rndnum);
     setFormValues(defaultValues)
 
-    var i = 0
         var track = 'false'
         var setf = 'false'
       Questions[rndnum].answers.forEach((obj,index) => {
@@ -149,6 +148,7 @@ export default function Boldface({ UserObj, setUserObj, id }) {
                             </Grid>
                           </>
                     }else{
+
                       return <>
                               <Grid item xs={6}> 
                                 <Controller
@@ -166,6 +166,30 @@ export default function Boldface({ UserObj, setUserObj, id }) {
                                           backgroundColor: alpha(grey[100],0.2),
                                         },}}}
                                       {...field}
+                                      onKeyPress={(ev) => {
+                                        //console.log(`Pressed keyCode ${ev.key}`);
+                                        if (ev.key === 'Enter') {
+                                          
+                                          const current_Refs = find(myRefs.current, element => {
+                                            return element !== null;
+                                          }, index);
+
+                                          const next_Refs = find(myRefs.current, element => {
+                                            return element !== null;
+                                          }, index+1);
+                                          
+                                          const last_Refs = findLast(myRefs.current, element => {
+                                            return element !== null;
+                                          }, index+1);
+
+                                          if(current_Refs===last_Refs){
+                                            handleOnSubmit()                                           
+                                          }else{
+                                            next_Refs.focus()
+                                          }    
+                                          ev.preventDefault();
+                                        }
+                                      }}
                                       fullWidth
                                       variant="outlined"
                                       size="small"
