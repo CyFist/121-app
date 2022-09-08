@@ -81,6 +81,48 @@ export default function Boldface({ UserObj, setUserObj, id }) {
     }
 };
 
+function getLines(str) {
+  // This uses RegEx to match new lines.
+  // We use || [] because it would otherwise fail if there weren't
+  // any line breaks yet.
+
+  return (str.match(/[\n\r]/g) || []).length;
+}
+
+  const handleOnKeyPress = (ev,idx) => {
+
+    
+    //setTxtarea(ev.target.value)
+    
+    const textareaValue = ev.target.value;
+    const textareaLines = getLines(textareaValue)
+
+    //console.log(Txtarea)
+    //console.log(textareaValue)
+    //console.log(textareaLines)
+    if (ev.key === 'Enter' || textareaLines > 0) {
+                                          
+      const current_Refs = find(myRefs.current, element => {
+        return element !== null;
+      }, idx);
+
+      const next_Refs = find(myRefs.current, element => {
+        return element !== null;
+      }, idx+1);
+      
+      const last_Refs = findLast(myRefs.current, element => {
+        return element !== null;
+      });
+      
+      if(current_Refs===last_Refs){
+        handleOnSubmit()                                           
+      }else{
+        next_Refs.focus()
+      }    
+      ev.preventDefault();
+    }
+  }
+
   const handleOnSubmit = (evt) => {
     
     setCounter(Counter + 1) //track submission of form to trigger setfocus
@@ -129,7 +171,7 @@ export default function Boldface({ UserObj, setUserObj, id }) {
         
           if (Object.keys(obj)[0].startsWith('answerText')) {
               track = 'true'
-              if(track === 'true' && setf == 'false'){
+              if(track === 'true' && setf === 'false'){
                 setIdx({...idx,
                   index: index})
                 setf = 'true'
@@ -141,6 +183,9 @@ export default function Boldface({ UserObj, setUserObj, id }) {
   };
   
   objs.current = Questions[randomNumber].answers.map((ans, index) => {
+
+                    
+
                     if(Object.keys(ans)[0].startsWith('prompt')){
                       return <>
                             <Grid item xs={12}>
@@ -164,33 +209,14 @@ export default function Boldface({ UserObj, setUserObj, id }) {
                                         '&.Mui-focused fieldset': {
                                           borderColor: alpha(teal['A400'],0.9),
                                           backgroundColor: alpha(grey[100],0.2),
-                                        },}}}
+                                        },}}} 
                                       {...field}
                                       onKeyPress={(ev) => {
                                         //console.log(`Pressed keyCode ${ev.key}`);
-                                        if (ev.key === 'Enter') {
-                                          
-                                          const current_Refs = find(myRefs.current, element => {
-                                            return element !== null;
-                                          }, index);
-
-                                          const next_Refs = find(myRefs.current, element => {
-                                            return element !== null;
-                                          }, index+1);
-                                          
-                                          const last_Refs = findLast(myRefs.current, element => {
-                                            return element !== null;
-                                          });
-                                          
-                                          if(current_Refs===last_Refs){
-                                            handleOnSubmit()                                           
-                                          }else{
-                                            next_Refs.focus()
-                                          }    
-                                          ev.preventDefault();
-                                        }
+                                        handleOnKeyPress(ev,index)
                                       }}
                                       fullWidth
+                                      id={Object.keys(ans)[0]}
                                       variant="outlined"
                                       size="small"
                                       label=""
@@ -198,7 +224,6 @@ export default function Boldface({ UserObj, setUserObj, id }) {
                                       required
                                       inputProps={{ style: { fontSize: "0.75rem", textTransform: "uppercase" } }}
                                       inputRef={(el) => (myRefs.current[index] = el)}
-
                                     />
                                   )}
                                 />
