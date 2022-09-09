@@ -89,18 +89,43 @@ function getLines(str) {
   return (str.match(/[\n\r]/g) || []).length;
 }
 
+  const handleOnInput = (e,idx) => {
+
+    var newValue = e.target.value;
+    var newLines = getLines(newValue);
+
+
+    if (newLines > 0 ) {
+                                          
+      const current_Refs = find(myRefs.current, element => {
+        return element !== null;
+      }, idx);
+
+      const next_Refs = find(myRefs.current, element => {
+        return element !== null;
+      }, idx+1);
+      
+      const last_Refs = findLast(myRefs.current, element => {
+        return element !== null;
+      });
+      
+      if(current_Refs===last_Refs){
+        handleOnSubmit()                                           
+      }else{
+        next_Refs.focus()
+      }    
+
+    }    
+
+  };
+
   const handleOnKeyPress = (ev,idx) => {
 
     
     //setTxtarea(ev.target.value)
     
-    const textareaValue = ev.target.value;
-    const textareaLines = getLines(textareaValue)
-
-    //console.log(Txtarea)
-    //console.log(textareaValue)
-    //console.log(textareaLines)
-    if (ev.key === 'Enter' || textareaLines > 0) {
+    
+    if (ev.key === 'Enter' ) {
                                           
       const current_Refs = find(myRefs.current, element => {
         return element !== null;
@@ -215,14 +240,16 @@ function getLines(str) {
                                         //console.log(`Pressed keyCode ${ev.key}`);
                                         handleOnKeyPress(ev,index)
                                       }}
+                                      onInput={(ev) => {handleOnInput(ev,index)}}
                                       fullWidth
                                       id={Object.keys(ans)[0]}
                                       variant="outlined"
                                       size="small"
                                       label=""
                                       multiline
-                                      required
-                                      inputProps={{ style: { fontSize: "0.75rem", textTransform: "uppercase" } }}
+                                      inputProps={{ style: { fontSize: "0.75rem", textTransform: "uppercase" },
+                                                    
+                                      }}
                                       inputRef={(el) => (myRefs.current[index] = el)}
                                     />
                                   )}
@@ -284,6 +311,7 @@ function getLines(str) {
         <Fab sx={{"margin-top":"0.5rem"}}variant="extended" size="medium" type="submit">
           Submit
         </Fab>
+
       </Box>       
     </Container>
   );
