@@ -115,7 +115,7 @@ function getLines(str) {
       if(current_Refs===last_Refs){
         handleOnSubmit()                                           
       }else{
-        current_Refs.value = Txtvalue
+        current_Refs.value = newValue.replace(/(\r\n|\n|\r)/gm, "");
         next_Refs.focus()
       }    
 
