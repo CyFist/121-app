@@ -23,6 +23,7 @@ export default function Boldface({ UserObj, setUserObj, id }) {
   const [Openpop, setOpenpop] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const [idx, setIdx] = useState(0);
+  const [Txtvalue, setTxtvalue] = useState("");
   const [Counter, setCounter] = useState(0);
   const timer = useRef();
   const myRefs = useRef([]);
@@ -94,7 +95,9 @@ function getLines(str) {
     var newValue = e.target.value;
     var newLines = getLines(newValue);
 
-
+    console.log(Txtvalue)
+    console.log(newValue)
+    
     if (newLines > 0 ) {
                                           
       const current_Refs = find(myRefs.current, element => {
@@ -112,6 +115,7 @@ function getLines(str) {
       if(current_Refs===last_Refs){
         handleOnSubmit()                                           
       }else{
+        current_Refs.value = Txtvalue
         next_Refs.focus()
       }    
 
@@ -122,10 +126,10 @@ function getLines(str) {
   const handleOnKeyPress = (ev,idx) => {
 
     
-    //setTxtarea(ev.target.value)
+    setTxtvalue(ev.target.value)
     
     
-    if (ev.key === 'Enter' ) {
+    if (ev.key === '' ) {
                                           
       const current_Refs = find(myRefs.current, element => {
         return element !== null;
