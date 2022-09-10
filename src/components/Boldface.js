@@ -4,7 +4,7 @@ import { useNavigate } from "react-router";
 import { restdb }  from "../utils/api_client";
 import { alpha, Box, Container, Stepper, Step, StepLabel, Backdrop, Fab, Typography, TextField, Grid } from '@mui/material/';
 import { teal, pink, grey } from "@mui/material/colors";
-import { isEqual, forIn, update, find, findLast, findIndex, findLastIndex, compact } from "lodash";
+import { isEqual, forIn, update, find, findLast, findIndex, compact } from "lodash";
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import boldfaces from "../utils/boldfaces.json"
@@ -223,8 +223,8 @@ function getLines(str) {
                                       size="small"
                                       label=""
                                       multiline
-                                      inputProps={{ style: { fontSize: "0.75rem", textTransform: "uppercase" },
-                                                    
+                                      autoComplete="off"
+                                      inputProps={{ style: { fontSize: "0.75rem", textTransform: "uppercase" },            
                                       }}
                                       inputRef={(el) => (myRefs.current[index] = el)}
                                     />
