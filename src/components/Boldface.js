@@ -95,8 +95,8 @@ function getLines(str) {
     var newValue = e.target.value;
     var newLines = getLines(newValue);
 
-    console.log(Txtvalue)
-    console.log(newValue)
+    //console.log(Txtvalue)
+    //console.log(newValue)
     
     if (newLines > 0 ) {
                                           
@@ -106,19 +106,23 @@ function getLines(str) {
 
       const next_Refs = find(myRefs.current, element => {
         return element !== null;
-      }, idx+1);
+      }, ++idx);
       
       const last_Refs = findLast(myRefs.current, element => {
         return element !== null;
       });
       
+      //console.log(next_Refs)
       if(current_Refs===last_Refs){
-        handleOnSubmit()                                           
+        //current_Refs.value = newValue.replace(/(\r\n|\n|\r)/gm, "");
+        //console.log(current_Refs.closest("form"))
+        //e.preventDefault();
+        handleSubmit(handleOnSubmit)()                                        
       }else{
         current_Refs.value = newValue.replace(/(\r\n|\n|\r)/gm, "");
         next_Refs.focus()
       }    
-
+      
     }    
 
   };
@@ -129,27 +133,7 @@ function getLines(str) {
     setTxtvalue(ev.target.value)
     
     
-    if (ev.key === '' ) {
-                                          
-      const current_Refs = find(myRefs.current, element => {
-        return element !== null;
-      }, idx);
 
-      const next_Refs = find(myRefs.current, element => {
-        return element !== null;
-      }, idx+1);
-      
-      const last_Refs = findLast(myRefs.current, element => {
-        return element !== null;
-      });
-      
-      if(current_Refs===last_Refs){
-        handleOnSubmit()                                           
-      }else{
-        next_Refs.focus()
-      }    
-      ev.preventDefault();
-    }
   }
 
   const handleOnSubmit = (evt) => {
@@ -159,6 +143,8 @@ function getLines(str) {
     forIn(evt, function(value, key) {
       update(evt, key, function(value) { return value.toUpperCase(); })
     });
+
+    console.log(evt)
 
     if (isEqual(evt, formValues)){
           setActiveStep((prevActiveStep) => prevActiveStep + 1);
