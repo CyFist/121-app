@@ -4,7 +4,7 @@ import { useNavigate } from "react-router";
 import { restdb }  from "../utils/api_client";
 import { alpha, Box, Container, Stepper, Step, StepLabel, Backdrop, Fab, Typography, TextField, Grid } from '@mui/material/';
 import { teal, pink, grey } from "@mui/material/colors";
-import { isEqual, forIn, update, find, findLast } from "lodash";
+import { isEqual, forIn, update, find, findLast, findIndex, findLastIndex, compact } from "lodash";
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import boldfaces from "../utils/boldfaces.json"
@@ -56,11 +56,10 @@ export default function Boldface({ UserObj, setUserObj, id }) {
   }, []);
 
   useEffect(() => {
-    const filt_Refs = myRefs.current.filter(element => {
-      return element !== null;
-    });
+
+    const compactRefs = compact(myRefs.current)
     
-    filt_Refs[0].focus()
+    compactRefs[0].focus()
 
   }, [Counter]);
 
@@ -95,27 +94,26 @@ function getLines(str) {
     var newValue = e.target.value;
     var newLines = getLines(newValue);
 
-    //console.log(Txtvalue)
-    //console.log(newValue)
-    const current_Ref = find(myRefs.current, element => {
+    const compactRefs = compact(myRefs.current)
+    var cur_idx = findIndex(compactRefs, element => {
+      return element === e.target;
+    });
+    const current_textfield = find(compactRefs, element => {
       return element !== null;
-    }, idx);
-
-    const next_Ref = find(myRefs.current, element => {
+    }, cur_idx);
+    const next_textfield = find(compactRefs, element => {
       return element !== null;
-    }, ++idx);
-    
-    const last_Ref = findLast(myRefs.current, element => {
+    }, ++cur_idx);
+    const last_textfield = findLast(compactRefs, element => {
       return element !== null;
     });
 
     if (newLines > 0 ) {
-      if(current_Ref===last_Ref){
+      if(current_textfield===last_textfield){
         handleSubmit(handleOnSubmit)()                                        
       }else{
-        //console.log(next_Ref)
-        current_Ref.value = newValue.replace(/(\r\n|\n|\r)/gm, "");
-        next_Ref.focus()
+        current_textfield.value = newValue.replace(/(\r\n|\n|\r)/gm, "");
+        next_textfield.focus()
       }    
       
     }    
@@ -134,7 +132,8 @@ function getLines(str) {
       update(evt, key, function(value) { return value.toUpperCase(); })
     });
 
-    console.log(evt)
+    //myRefs = [];
+    //console.log(evt)
 
     if (isEqual(evt, formValues)){
           setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -166,7 +165,7 @@ function getLines(str) {
 
     reset()
 
-    const rndnum = Math.floor(Math.random() *(Questions.length-1))
+    const rndnum = Math.floor(Math.random() *(Questions.length))
     setRandomNumber(rndnum);
     setFormValues(defaultValues)
 
