@@ -87,7 +87,7 @@ function getLines(str) {
   // We use || [] because it would otherwise fail if there weren't
   // any line breaks yet.
 
-  return (str.match(/[\n\r]/g) || []).length;
+  return (str.match(/[\r\n]/g) || []).length;
 }
 
   const handleOnInput = (e,idx) => {
@@ -97,30 +97,25 @@ function getLines(str) {
 
     //console.log(Txtvalue)
     //console.log(newValue)
-    
-    if (newLines > 0 ) {
-                                          
-      const current_Refs = find(myRefs.current, element => {
-        return element !== null;
-      }, idx);
+    const current_Ref = find(myRefs.current, element => {
+      return element !== null;
+    }, idx);
 
-      const next_Refs = find(myRefs.current, element => {
-        return element !== null;
-      }, ++idx);
-      
-      const last_Refs = findLast(myRefs.current, element => {
-        return element !== null;
-      });
-      
-      //console.log(next_Refs)
-      if(current_Refs===last_Refs){
-        //current_Refs.value = newValue.replace(/(\r\n|\n|\r)/gm, "");
-        //console.log(current_Refs.closest("form"))
-        //e.preventDefault();
+    const next_Ref = find(myRefs.current, element => {
+      return element !== null;
+    }, ++idx);
+    
+    const last_Ref = findLast(myRefs.current, element => {
+      return element !== null;
+    });
+
+    if (newLines > 0 ) {
+      if(current_Ref===last_Ref){
         handleSubmit(handleOnSubmit)()                                        
       }else{
-        current_Refs.value = newValue.replace(/(\r\n|\n|\r)/gm, "");
-        next_Refs.focus()
+        //console.log(next_Ref)
+        current_Ref.value = newValue.replace(/(\r\n|\n|\r)/gm, "");
+        next_Ref.focus()
       }    
       
     }    
@@ -128,12 +123,7 @@ function getLines(str) {
   };
 
   const handleOnKeyPress = (ev,idx) => {
-
-    
     setTxtvalue(ev.target.value)
-    
-    
-
   }
 
   const handleOnSubmit = (evt) => {
@@ -194,12 +184,9 @@ function getLines(str) {
             setFormValues(prev => ({...prev,[Object.keys(obj)[0]]: obj[Object.keys(obj)[0]]}));
           }
     });
-    
   };
   
   objs.current = Questions[randomNumber].answers.map((ans, index) => {
-
-                    
 
                     if(Object.keys(ans)[0].startsWith('prompt')){
                       return <>
@@ -301,7 +288,6 @@ function getLines(str) {
         <Fab sx={{"margin-top":"0.5rem"}}variant="extended" size="medium" type="submit">
           Submit
         </Fab>
-
       </Box>       
     </Container>
   );
