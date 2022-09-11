@@ -43,23 +43,23 @@ function App() {
   const [Data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
-  eventSource.addEventListener('put', event => {
-    console.log('getdata')
-    getData();
-  }, false);
   
-  eventSource.addEventListener('post', event => {
-    console.log('getdata')
-    getData();
-  }, false);
-
-  eventSource.addEventListener('delete', event => {
-    console.log('getdata')
-    getData();
-  }, false);
-
   useEffect(() => {
+    eventSource.addEventListener('put', event => {
+      //console.log('getdata')
+      getData();
+    }, false);
+    
+    eventSource.addEventListener('post', event => {
+      //console.log('getdata')
+      getData();
+    }, false);
+  
+    eventSource.addEventListener('delete', event => {
+      //console.log('getdata')
+      getData();
+    }, false);
+
     setData(JSON.parse(localStorage.getItem('records')));
     // GET request using axios inside useEffect React hook
     getData();
@@ -86,7 +86,7 @@ function App() {
         <ResponsiveAppBar Username={UserObj} setUsername={setUserObj} />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="Overview" element={<Overview UserObj={UserObj} setUserObj={setUserObj} Data={Data} />} />
+          <Route path="Overview" element={<Overview UserObj={UserObj} setUserObj={setUserObj} Data={Data} setData={setData}/>} />
           <Route path="Boldface" element={<Boldface UserObj={UserObj} setUserObj={setUserObj} />} />
           <Route path="Quiz" element={<Quiz />} />
         </Routes>

@@ -16,7 +16,7 @@ import SearchIcon from '@mui/icons-material/Search';
 
 import { teal, pink, grey } from "@mui/material/colors";
 import { styled } from '@mui/material/styles';
-import { filter, orderBy, startsWith } from "lodash";
+import { filter, orderBy, startsWith, reject} from "lodash";
 import dayjs from 'dayjs'
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
 import isBetween from 'dayjs/plugin/isBetween'
@@ -39,7 +39,7 @@ const style = {
   p: 2,
 };
 
-const Overview = ({ UserObj, setUserObj, Data }) => {
+const Overview = ({ UserObj, setUserObj, Data, setData }) => {
 
   const navigate = useNavigate();
   const [error, setError] = useState("");
@@ -47,16 +47,12 @@ const Overview = ({ UserObj, setUserObj, Data }) => {
   const [open, setOpen] = useState(false);
   const [ModalTitle, setModalTitle] = useState("");
   const [labelText, setLabelText] = useState("User");
-  
-  const [UserGrid, setUserGrid] = useState([]);
-  const [SearchData, setSearchData] = useState(Data);
-  const [Searching, setSearching] = useState(false);
-
+  const [q, setQ] = useState("");
   const [errorText, setErrorText] = useState();
   const [AddbtnDisabled, setAddbtnDisabled] = useState(true);
   const [RembtnDisabled, setRembtnDisabled] = useState(true);
+  const myRefs = useRef([]);
   const textfieldref = useRef()
-  const Searchfieldref = useRef()
   const [value, setValue] = useState();
   
   const { control, handleSubmit, reset } = useForm({
@@ -64,7 +60,6 @@ const Overview = ({ UserObj, setUserObj, Data }) => {
   });
 
   const AddonChange = (ev) => {
-  
     setValue(ev.target.value);
 
     const UserData = filter(Data, ['User', ev.target.value.toUpperCase()])
@@ -85,63 +80,15 @@ const Overview = ({ UserObj, setUserObj, Data }) => {
   };
 
   const SearchUser = (event) => {
-    
-    const Searchtxt = event.searchfield
-
-    const SearchD = filter(Data, function(o) { return startsWith(o.User, Searchtxt.toUpperCase()); });
-
-    setSearching(true)
-    setSearchData(SearchD)
-
-    //console.log(SearchData)
-
-    const grids = SearchD.map((obj, idx) => {
-
-      var bgclr = alpha(pink[400],0.4);
-      var valid = (dayjs(obj.Date).isSameOrAfter(dayjs().day(0).set('hour', 23).set('minute', 59).set('second', 59)))
-      
-      const PersButton = styled(Button)(({ theme }) => ({
-        backgroundColor: valid? alpha(teal[700],0.5) : alpha(pink[800],0.5),
-        ...theme.typography.body2,
-        padding: theme.spacing(0),
-        maxWidth: 400,
- 
-        width: '100%',
-        position: 'relative',
-        textAlign: 'center',
-        'flex-direction': 'column',
-        color: theme.palette.text.primary,
-        "&:hover": {transform: 'scale(1.2)', backgroundColor: valid? alpha(teal[700],1) : alpha(pink[800],1) , 'z-index':'555555'}       
-      }));
-
-      return <Grid key={idx} item xs={4} sm={3} md={2} lg={1} onClick={() => { handleOnClick(obj) }}>
-              <PersButton>
-                  <Typography variant="subtitle1">
-                    {obj.User}
-                  </Typography>
-                  <Typography variant="body2" color={grey[300]}>
-                    {obj.Date === null? "-": dayjs(obj.Date).format('DD MMM YY')}
-                  </Typography>
-              </PersButton>
-            </Grid>
-    });
-
-    setUserGrid(grids)
-
-    //console.log(objs.current)
-
+    setQ(event.searchfield) 
   };
-
   const RemoveonChange = (ev) => {
-
-    console.log(ev.target.value)
     if (ev.target.value === ''){
       setRembtnDisabled(true)
     }else{
       setRembtnDisabled(false)
     }
   };
-
   const handleOpen = (titletext) => {
     setModalTitle(titletext)
     setOpen(true);
@@ -149,30 +96,44 @@ const Overview = ({ UserObj, setUserObj, Data }) => {
   const handleClose = () => {
       setOpen(false)
       setRembtnDisabled(true)
-    };
-  
-  const objs = useRef()
+  };
 
   const UpdateRestDB = async (User,updatetype) => {
     
     setError("");
     
     const UserData = filter(Data, ['User', User.toUpperCase()])
-      console.log(UserData.length)
+      //console.log(UserData.length)
       try {
-        if (updatetype==='Add'){
-          if (UserData.length===0){
-            const data = {
+        if (updatetype==='Add' && UserData.length===0){
+            const body = {
               "User": User.toUpperCase(),
               "Date": null
             }
-            console.log('added')
-            await restdb.post("/records", data);
-          }
+
+            let res = await restdb.post("/records", body);
+            if(res.status >= 200 && res.status <= 299) {
+
+              const newUser = {
+                "_id": res.data._id ,
+                "User": res.data.User ,
+                "Date": null
+              }
+              
+              let newState = Data
+              newState.push(newUser)
+
+              setData(orderBy(newState,[( o ) => { return o.Date || ''},'User'], ['desc', 'asc']))
+            }
+            
         } else if (updatetype==='Remove'){
           const id = UserData[0]._id
-          console.log('removed')
-          await restdb.delete(`/records/${id}`);
+          let res = await restdb.delete(`/records/${id}`);
+          if(res.status == 200){
+            //console.log('removed')
+            let x = Data
+            setData(reject(x, {_id: id}))
+          } 
         }
       } catch (error) {
         setError("Something went wrong!");
@@ -187,23 +148,20 @@ const Overview = ({ UserObj, setUserObj, Data }) => {
 
     //console.log(dayjs(obj.Date).isSameOrAfter(dayjs().day(-6)));
     if (!dayjs(obj.Date).isBetween(dayjs().day(0).set('hour', 23).set('minute', 59).set('second', 59), dayjs().day(8).set('hour', 0).set('minute', 0).set('second', 1) )){
-      
       navigate("/Boldface")
     }
     //console.log(sessionStorage.getItem('User'));
   }
 
-  objs.current =  Data.map((obj, idx) => {
+  const usergrid = filter(Data, function(o) { return startsWith(o.User, q); }).map((obj, idx) => {
 
-    var bgclr = alpha(pink[400],0.4);
     var valid = (dayjs(obj.Date).isBetween(dayjs().day(0).set('hour', 23).set('minute', 59).set('second', 59), dayjs().day(8).set('hour', 0).set('minute', 0).set('second', 1) ))
-    
+
     const PersButton = styled(Button)(({ theme }) => ({
       backgroundColor: valid? alpha(teal[700],0.5) : alpha(pink[800],0.5),
       ...theme.typography.body2,
       padding: theme.spacing(0),
       maxWidth: 400,
-
       width: '100%',
       position: 'relative',
       textAlign: 'center',
@@ -212,61 +170,62 @@ const Overview = ({ UserObj, setUserObj, Data }) => {
       "&:hover": {transform: 'scale(1.2)', backgroundColor: valid? alpha(teal[700],1) : alpha(pink[800],1) , 'z-index':'555555'}       
     }));
 
-    return <Grid key={idx} item xs={4} sm={3} md={2} lg={1} onClick={() => { handleOnClick(obj) }}>
-            <PersButton>
+    return (<Grid key={idx} item xs={4} sm={3} md={2} lg={1} onClick={() => { handleOnClick(obj) }}>
+            <PersButton
+            name={obj.User}
+            ref={(el) => (myRefs.current[idx] = el)}
+            >
                 <Typography variant="subtitle1">
                   {obj.User}
                 </Typography>
-                <Typography variant="body2" color={grey[300]}>
+                <Typography variant="subtitle2" color={grey[500]}>
                   {obj.Date === null? "-": dayjs(obj.Date).format('DD MMM YY')}
                 </Typography>
             </PersButton>
-          </Grid>
-  });
-  //setUserGrid(grids)
+          </Grid>)
+    })
 
   return (
     <>
     <Paper
-      component="form"
-      onSubmit={handleSubmit(SearchUser)}
-      sx={{ p: '2px 4px', display: 'flex', "margin":"1rem 1rem 0 1rem", alignItems: 'center' }}
+    component="form"
+    onSubmit={handleSubmit(SearchUser)}
+    sx={{ p: '2px 4px', display: 'flex', "margin":"1rem 1rem 0 1rem", alignItems: 'center' }}
     >
       <Controller
-        control={control}
-        name="searchfield"
-        defaultValue=""
-        render={({ field }) => (
-          <InputBase
-            {...field}
-            id="SearchUser"
-            sx={{ ml: 1, flex: 1 }}
-            placeholder="Search For Users"
-            inputProps={{ 'aria-label': 'search for users',style: { textTransform: "uppercase" } }}
-          />
-        )}
+      control={control}
+      name="searchfield"
+      defaultValue=""
+      render={({ field }) => (
+        <InputBase
+        {...field}
+        id="SearchUser"
+        autoComplete="off"
+        sx={{ ml: 1, flex: 1 }}
+        placeholder="Search Users"
+        value={q}
+        onChange={(e) => setQ(e.target.value.toUpperCase())}
+        />
+      )}
       />
-      <IconButton type="button" sx={{ p: '10px' }} aria-label="search" onClick={handleSubmit(SearchUser)}>
+      <IconButton sx={{ p: '10px', color: grey[700] }} aria-label="search" onClick={handleSubmit(SearchUser)}>
         <SearchIcon />
       </IconButton>
       <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
         <IconButton type="button" onClick={() => { handleOpen("Add") }} sx={{
-          borderColor: "whitesmoke",
-          color: "white",
-          '&:hover': { backgroundColor: alpha(teal[900],0.5), borderColor: "whitesmoke"}}} variant="outlined">
+          color: grey[700],
+          '&:hover': { backgroundColor: alpha(teal[900],0.5)}}} variant="outlined">
           <PersonAddOutlinedIcon />
         </IconButton>
         <IconButton type="button" onClick={() => { handleOpen("Remove") }} sx={{
-          borderColor: "whitesmoke",
-          color: "white",
-          '&:hover': { backgroundColor: alpha(pink[900],0.5), borderColor: "whitesmoke"}}} variant="outlined">
+          color: grey[700],
+          '&:hover': { backgroundColor: alpha(pink[900],0.5)}}} variant="outlined">
           <PersonRemoveAlt1OutlinedIcon />
         </IconButton>
     </Paper>
-    
     <Box sx={{ flexGrow: 1, "padding":"1rem", display: { xs: 'flex', md: 'flex' } }}>
       <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 1, md: 1 }}>
-        {Searching? UserGrid : objs.current}
+        {usergrid}
         <Modal
           open={open}
           onClose={handleClose}
@@ -279,65 +238,64 @@ const Overview = ({ UserObj, setUserObj, Data }) => {
               {ModalTitle} User
             </Typography>
               {(ModalTitle==="Remove")? 
-                  <TextField
-                  sx={{
-                  margin:'1rem 0',
-                  '& label.Mui-focused': {
-                  color: alpha(teal['A400'],0.9),
-                  },
-                  '& .MuiOutlinedInput-root': {
-                  '&:hover fieldset': {
-                    borderColor: alpha(teal['A400'],0.9),
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: alpha(teal['A400'],0.9),
-                  },
-                  }}}
-                  select
-                  fullWidth
-                  label= "Select User"
-                  inputProps={{ style: { textTransform: "uppercase" } }}
-                  inputRef={textfieldref}
-                  onChange={RemoveonChange}
-                >
-                  {orderBy(Data, ['User'], ['asc']).map((obj) => (
-                    <MenuItem value={obj.User}>{obj.User}</MenuItem>
-                  ))}
-                </TextField>
-              : 
                 <TextField
                 sx={{
-                  margin:'1rem 0',
-                  '& label.Mui-focused': {
-                    color: alpha(teal['A400'],0.9),
-                  },
-                  '& label.Mui-error': {
-                    color: alpha(pink['A400'],0.9),
-                  },
-                  '& .MuiOutlinedInput-root': {
-                  '&:hover fieldset': {
-                    borderColor: alpha(teal['A400'],0.9),
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: alpha(teal['A400'],0.9),
-                  },
-                  '&.Mui-error fieldset': {
-                    borderColor: alpha(pink['A400'],0.9),
-                  },
-              }}}
-                label={labelText}
-                name="User"
+                margin:'1rem 0',
+                '& label.Mui-focused': {
+                color: alpha(teal['A400'],0.9),
+                },
+                '& .MuiOutlinedInput-root': {
+                '&:hover fieldset': {
+                  borderColor: alpha(teal['A400'],0.9),
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: alpha(teal['A400'],0.9),
+                },
+                }}}
+                select
                 fullWidth
-                autoFocus
-                autoComplete="off"
-                inputProps={{ style: { fontSize: "0.75rem", textTransform: "uppercase" }}}
-                error={errorText}
+                label= "Select User"
+                inputProps={{ style: { textTransform: "uppercase" } }}
                 inputRef={textfieldref}
-                onChange={AddonChange}
-                value={value}
-                />
-              }
-                
+                onChange={RemoveonChange}
+              >
+                {orderBy(Data, ['User'], ['asc']).map((obj) => (
+                  <MenuItem value={obj.User}>{obj.User}</MenuItem>
+                ))}
+              </TextField>
+            : 
+              <TextField
+              sx={{
+              margin:'1rem 0',
+              '& label.Mui-focused': {
+                color: alpha(teal['A400'],0.9),
+              },
+              '& label.Mui-error': {
+                color: alpha(pink['A400'],0.9),
+              },
+              '& .MuiOutlinedInput-root': {
+              '&:hover fieldset': {
+                borderColor: alpha(teal['A400'],0.9),
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: alpha(teal['A400'],0.9),
+              },
+              '&.Mui-error fieldset': {
+                borderColor: alpha(pink['A400'],0.9),
+                },
+              }}}
+              label={labelText}
+              name="User"
+              fullWidth
+              autoFocus
+              autoComplete="off"
+              inputProps={{ style: { fontSize: "0.75rem", textTransform: "uppercase" }}}
+              error={errorText}
+              inputRef={textfieldref}
+              onChange={AddonChange}
+              value={value}
+              />
+            }    
             <Button fullWidth 
               sx={{
               borderColor: "whitesmoke",

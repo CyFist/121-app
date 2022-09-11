@@ -267,7 +267,7 @@ function getLines(str) {
         <Typography sx={{fontSize:"3rem", backgroundColor:"transparent", color: grey[300]}}>{success? "Correct" : "Incorrect"}</Typography>
       </Backdrop>
       <Box sx={{
-              display: { md: 'flex' }}}>
+              display: { sm: 'flex' }}}>
       <Stepper
       activeStep={activeStep} connector={false}>        
       {[1,2,3,4,5,6,7,8,9,10,11,12].map((index) => {
@@ -284,9 +284,6 @@ function getLines(str) {
           <Grid sx={{padding:"0.3rem"}}container rowSpacing={1} columnSpacing={{ xs: 1, sm: 1, md: 1 }}>
             {objs.current}
           </Grid>
-        <Fab sx={{"margin-top":"0.5rem"}}variant="extended" size="medium" type="submit">
-          Submit
-        </Fab>
       </Box>       
     </Container>
   );
