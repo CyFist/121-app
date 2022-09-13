@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { restdb } from "../utils/api_client";
 import { useNavigate } from "react-router";
-import { alpha, Box, Grid, Button, Typography, TextField, Backdrop } from '@mui/material';
+import { alpha, Box, Grid, Button, Typography, TextField, Backdrop, Fade, Container } from '@mui/material';
 import Modal from '@mui/material/Modal';
 import MenuItem from '@mui/material/MenuItem';
 import PersonRemoveAlt1OutlinedIcon from '@mui/icons-material/PersonRemoveAlt1Outlined';
@@ -54,23 +54,19 @@ const Overview = ({ UserObj, setUserObj, Data, setData }) => {
   const [RembtnDisabled, setRembtnDisabled] = useState(true);
   const myRefs = useRef([]);
   const textfieldref = useRef()
+  const timerRef = useRef();
   const [value, setValue] = useState();
   
   const { control, handleSubmit, reset } = useForm({
     reValidateMode: "onBlur"
   });
 
+  const [status, setStatus] = useState('idle');
   const [bdopen, setbdOpen] = useState(false);
-  const handlebdClose = () => {
-    setbdOpen(false);
-  };
-  const handleToggle = () => {
-    setbdOpen(!open);
-  };
 
 
   const AddonChange = (ev) => {
-    setValue(ev.target.value);
+    setValue(ev.target.value.toUpperCase());
 
     const UserData = filter(Data, ['User', ev.target.value.toUpperCase()])
 
@@ -93,7 +89,7 @@ const Overview = ({ UserObj, setUserObj, Data, setData }) => {
     setQ(event.searchfield) 
   };
   const RemoveonChange = (ev) => {
-    if (ev.target.value === ''){
+    if (ev.target.value.toUpperCase() === ''){
       setRembtnDisabled(true)
     }else{
       setRembtnDisabled(false)
@@ -116,6 +112,7 @@ const Overview = ({ UserObj, setUserObj, Data, setData }) => {
       //console.log(UserData.length)
       setOpen(false)
       setbdOpen(true);
+      setStatus("progress")
 
       try {
         if (updatetype==='Add' && UserData.length===0){
@@ -152,7 +149,11 @@ const Overview = ({ UserObj, setUserObj, Data, setData }) => {
         setError("Something went wrong!");
         return console.log(error);
       }
-      setbdOpen(false)
+      setStatus("success")
+      timerRef.current = window.setTimeout(() => {
+        setbdOpen(false);
+      }, 1000);
+      
   };
   
   const handleOnClick = (obj) => {
@@ -199,12 +200,27 @@ const Overview = ({ UserObj, setUserObj, Data, setData }) => {
     })
 
   return (
-    <>
+    <Container sx={{
+      '& .MuiBackdrop-root': { position:"absolute", top:"3.5rem"}}} disableGutters={true} maxWidth="xl">
       <Backdrop
-        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        sx={{ backgroundColor: alpha('#000000',0.8), color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={bdopen}
       >
-        <CircularProgress color="inherit" />
+         {status === 'success' ? (
+          <Typography variant="h6">Success. {(ModalTitle==="Remove")? 'Removed ' : 'Added'} {value}.</Typography>
+        ) : (
+          <Fade
+            in={status === 'progress'}
+            style={{
+              transitionDelay: '0ms',
+            }}
+            unmountOnExit
+          >
+            <CircularProgress color="inherit" size={80}
+        thickness={4}/>
+          </Fade>
+        )}
+
         
       </Backdrop>
     <Paper
@@ -275,7 +291,6 @@ const Overview = ({ UserObj, setUserObj, Data, setData }) => {
                 select
                 fullWidth
                 label= "Select User"
-                inputProps={{ style: { textTransform: "uppercase" } }}
                 inputRef={textfieldref}
                 onChange={RemoveonChange}
               >
@@ -309,7 +324,7 @@ const Overview = ({ UserObj, setUserObj, Data, setData }) => {
               fullWidth
               autoFocus
               autoComplete="off"
-              inputProps={{ style: { fontSize: "0.75rem", textTransform: "uppercase" }}}
+              inputProps={{ style: { fontSize: "0.75rem"}}}
               error={errorText}
               inputRef={textfieldref}
               onChange={AddonChange}
@@ -329,7 +344,7 @@ const Overview = ({ UserObj, setUserObj, Data, setData }) => {
         </Modal>       
       </Grid>      
     </Box>
-    </>
+    </Container>
   );
   }
 
