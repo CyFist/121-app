@@ -4,30 +4,27 @@ import { useNavigate } from "react-router";
 import { restdb }  from "../utils/api_client";
 import { alpha, Box, Container, Stepper, Step, StepLabel, Backdrop, Fab, Typography, TextField, Grid } from '@mui/material/';
 import { teal, pink, grey } from "@mui/material/colors";
-import { isEqual, forIn, update, find, findLast, findIndex, compact } from "lodash";
+import { isEqual, forIn, update, find, findLast, findIndex, compact, orderBy } from "lodash";
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import boldfaces from "../utils/boldfaces.json"
 import dayjs from 'dayjs'
 
 
-export default function Boldface({ UserObj, setUserObj, id }) {
+export default function Boldface({ UserObj, setUserObj, Data, setData }) {
 
   const defaultValues = {};
 
   const [Questions, setQuestions] = useState(boldfaces);
-  const [randomNumber, setRandomNumber] = useState(Math.floor(Math.random() *(Questions.length-1)))
+  const [randomNumber, setRandomNumber] = useState(Math.floor(Math.random() *(Questions.length)))
   const [formValues, setFormValues] = useState(defaultValues)
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
   const [Openpop, setOpenpop] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
-  const [idx, setIdx] = useState(0);
-  const [Txtvalue, setTxtvalue] = useState("");
   const [Counter, setCounter] = useState(0);
   const timer = useRef();
   const myRefs = useRef([]);
-  const objs = useRef([])
   const navigate = useNavigate();
 
   const { control, handleSubmit, reset } = useForm({
@@ -56,11 +53,7 @@ export default function Boldface({ UserObj, setUserObj, id }) {
   }, []);
 
   useEffect(() => {
-
-    const compactRefs = compact(myRefs.current)
-    
-    compactRefs[0].focus()
-
+    compact(myRefs.current)[0].focus()
   }, [Counter]);
 
   const putData = async () => {
@@ -69,12 +62,18 @@ export default function Boldface({ UserObj, setUserObj, id }) {
     const body = {
       "_id": UserObj._id,
       "User": UserObj.User,
-      "Date": dayjs().toISOString()
+      "Date": dayjs().set('hour', 0).set('minute', 0).set('second', 0).toISOString()
     }
 
+    let newState = Data
+    const index = findIndex(newState, {_id: UserObj._id});
+    newState.splice(index, 1, body);
+
     try {
-      await restdb.put(`/records/${UserObj._id}`, body);
-      
+      let res = await restdb.put(`/records/${UserObj._id}`, body);
+      if(res.status == 200){
+        setData(orderBy(newState,[( o ) => { return o.Date || ''},'User'], ['desc', 'asc']))
+      }
     } catch (error) {
       setError("Something went wrong!");
       return console.log(error);
@@ -89,51 +88,33 @@ function getLines(str) {
   return (str.match(/[\r\n]/g) || []).length;
 }
 
-  const handleOnInput = (e,idx) => {
+  const handleOnInput = (e) => {
 
-    var newValue = e.target.value;
-    var newLines = getLines(newValue);
-
+    const newValue = e.target.value;
+    const newLines = getLines(newValue);
+    
     const compactRefs = compact(myRefs.current)
-    var cur_idx = findIndex(compactRefs, element => {
-      return element === e.target;
-    });
-    const current_textfield = find(compactRefs, element => {
-      return element !== null;
-    }, cur_idx);
-    const next_textfield = find(compactRefs, element => {
-      return element !== null;
-    }, ++cur_idx);
-    const last_textfield = findLast(compactRefs, element => {
-      return element !== null;
-    });
+    const current = findIndex(compactRefs, element => {return element === e.target;});
+    const next = current+1
+    const last = compactRefs.length-1
+
+    const textfield = (index) => find(compactRefs, element => {return element !== null;}, index);
+
+    textfield(current).value = newValue.toUpperCase()
 
     if (newLines > 0 ) {
-      if(current_textfield===last_textfield){
+      if(textfield(current)===textfield(last)){
         handleSubmit(handleOnSubmit)()                                        
       }else{
-        current_textfield.value = newValue.replace(/(\r\n|\n|\r)/gm, "");
-        next_textfield.focus()
-      }    
-      
-    }    
-
+        textfield(current).value = newValue.replace(/(\r\n|\n|\r)/gm, "");
+        textfield(next).focus()
+      }     
+    }
   };
-
-  const handleOnKeyPress = (ev,idx) => {
-    setTxtvalue(ev.target.value)
-  }
 
   const handleOnSubmit = (evt) => {
     
     setCounter(Counter + 1) //track submission of form to trigger setfocus
-
-    forIn(evt, function(value, key) {
-      update(evt, key, function(value) { return value.toUpperCase(); })
-    });
-
-    //myRefs = [];
-    //console.log(evt)
 
     if (isEqual(evt, formValues)){
           setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -142,11 +123,11 @@ function getLines(str) {
           setOpenpop(true);
         timer.current = window.setTimeout(() => {
           setOpenpop(false);
-        }, 800);
+        }, 500);
         
         timer.current = window.setTimeout(() => {
           setSuccess(false);
-        }, 1000);
+        }, 700);
 
       if (Questions.length !== 1) {
         Questions.splice(randomNumber,1);
@@ -160,7 +141,7 @@ function getLines(str) {
         timer.current = window.setTimeout(() => {
           setOpenpop(false);
           setSuccess(false);
-        }, 1000);
+        }, 700);
     }
 
     reset()
@@ -169,23 +150,14 @@ function getLines(str) {
     setRandomNumber(rndnum);
     setFormValues(defaultValues)
 
-        var track = 'false'
-        var setf = 'false'
-      Questions[rndnum].answers.forEach((obj,index) => {
-        
-          if (Object.keys(obj)[0].startsWith('answerText')) {
-              track = 'true'
-              if(track === 'true' && setf === 'false'){
-                setIdx({...idx,
-                  index: index})
-                setf = 'true'
-              }
-            setFormValues(prev => ({...prev,[Object.keys(obj)[0]]: obj[Object.keys(obj)[0]]}));
-          }
+    Questions[rndnum].answers.forEach((obj) => {
+        if (Object.keys(obj)[0].startsWith('answerText')) {
+          setFormValues(prev => ({...prev,[Object.keys(obj)[0]]: obj[Object.keys(obj)[0]]}));
+        }
     });
   };
-  
-  objs.current = Questions[randomNumber].answers.map((ans, index) => {
+
+  const bf = Questions[randomNumber].answers.map((ans, index) => {
 
                     if(Object.keys(ans)[0].startsWith('prompt')){
                       return <>
@@ -194,7 +166,6 @@ function getLines(str) {
                             </Grid>
                           </>
                     }else{
-
                       return <>
                               <Grid item xs={6}> 
                                 <Controller
@@ -210,21 +181,16 @@ function getLines(str) {
                                         '&.Mui-focused fieldset': {
                                           borderColor: alpha(teal['A400'],0.9),
                                           backgroundColor: alpha(grey[100],0.2),
-                                        },}}} 
+                                        }, }}} 
                                       {...field}
-                                      onKeyPress={(ev) => {
-                                        //console.log(`Pressed keyCode ${ev.key}`);
-                                        handleOnKeyPress(ev,index)
-                                      }}
-                                      onInput={(ev) => {handleOnInput(ev,index)}}
+                                      onInput={(ev) => {handleOnInput(ev)}}
                                       fullWidth
                                       id={Object.keys(ans)[0]}
                                       variant="outlined"
                                       size="small"
-                                      label=""
                                       multiline
                                       autoComplete="off"
-                                      inputProps={{ style: { fontSize: "0.75rem", textTransform: "uppercase" },            
+                                      inputProps={{ style: { fontSize: "0.75rem" },            
                                       }}
                                       inputRef={(el) => (myRefs.current[index] = el)}
                                     />
@@ -242,47 +208,47 @@ function getLines(str) {
         sx={[{zIndex: (theme) => theme.zIndex.drawer - 1,
           backgroundColor: alpha(pink[900],0.9)}, bgSx]}
         open={Openpop}
-      ></Backdrop>
+      />
       <Box
-        component="form"
-        onSubmit={handleSubmit(handleOnSubmit)}
-        sx={{
-          '& .MuiInputBase-root': {padding:"0.3rem 0.5rem"},
-          '& .MuiBackdrop-root': { position:"absolute", "flex-direction": "column" },
-          '& .MuiStep-root': {padding:"0", width: "100%"},  
-          '& .MuiStepLabel-iconContainer': {padding: "0.2rem"},
-          '& .MuiStepLabel-root': {"flex-direction": "column"},
-          '& .MuiStepIcon-root.Mui-active': {color: teal[200]},
-          '& .MuiStepIcon-root.Mui-completed': {color: teal[400]},
-          position: "relative"
-        }}
-        noValidate
-        autoComplete="off"
+      component="form"
+      onSubmit={handleSubmit(handleOnSubmit)}
+      sx={{
+        '& .MuiInputBase-root': {padding:"0.3rem 0.5rem"},
+        '& .MuiBackdrop-root': { position:"absolute", "flex-direction": "column" },
+        '& .MuiStep-root': {padding:"0", width: "100%"},  
+        '& .MuiStepLabel-iconContainer': {padding: "0.2rem"},
+        '& .MuiStepLabel-root': {"flex-direction": "column"},
+        '& .MuiStepIcon-root.Mui-active': {color: teal[200]},
+        '& .MuiStepIcon-root.Mui-completed': {color: teal[400]},
+        position: "relative"
+      }}
+      noValidate
+      autoComplete="off"
       >
         <Backdrop
         sx={{zIndex: (theme) => theme.zIndex.drawer - 1,
-          backgroundColor: "transparent"}}
+        backgroundColor: "transparent"}}
         open={Openpop}
-      >{success? <CheckCircleOutlinedIcon sx={{fontSize:"6rem"}}/> : <CancelOutlinedIcon sx={{fontSize:"6rem"}}/>}
+        >
+          {success? <CheckCircleOutlinedIcon sx={{fontSize:"6rem"}}/> : <CancelOutlinedIcon sx={{fontSize:"6rem"}}/>}
         <Typography sx={{fontSize:"3rem", backgroundColor:"transparent", color: grey[300]}}>{success? "Correct" : "Incorrect"}</Typography>
-      </Backdrop>
-      <Box sx={{
-              display: { sm: 'flex' }}}>
-      <Stepper
-      activeStep={activeStep} connector={false}>        
+        </Backdrop>
+      <Box sx={{display: { sm: 'flex' }}}>
+      <Stepper activeStep={activeStep}>        
       {[1,2,3,4,5,6,7,8,9,10,11,12].map((index) => {
         const stepProps = {};
         const labelProps = {};
         return (
-          <Step {...stepProps}>
+          <Step key={index} {...stepProps}>
             <StepLabel {...labelProps}></StepLabel>
           </Step>
         );
-      })}</Stepper>
+      })}
+      </Stepper>
       </Box>
         <Typography variant="h6">{Questions[randomNumber].header}</Typography>
           <Grid sx={{padding:"0.3rem"}}container rowSpacing={1} columnSpacing={{ xs: 1, sm: 1, md: 1 }}>
-            {objs.current}
+            {bf}
           </Grid>
       </Box>       
     </Container>

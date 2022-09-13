@@ -2,11 +2,12 @@ import React, { useState, useEffect, useRef } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { restdb } from "../utils/api_client";
 import { useNavigate } from "react-router";
-import { alpha, Box, Grid, Button, Typography, TextField } from '@mui/material';
+import { alpha, Box, Grid, Button, Typography, TextField, Backdrop } from '@mui/material';
 import Modal from '@mui/material/Modal';
 import MenuItem from '@mui/material/MenuItem';
 import PersonRemoveAlt1OutlinedIcon from '@mui/icons-material/PersonRemoveAlt1Outlined';
 import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import Paper from '@mui/material/Paper';
 import InputBase from '@mui/material/InputBase';
@@ -59,6 +60,15 @@ const Overview = ({ UserObj, setUserObj, Data, setData }) => {
     reValidateMode: "onBlur"
   });
 
+  const [bdopen, setbdOpen] = useState(false);
+  const handlebdClose = () => {
+    setbdOpen(false);
+  };
+  const handleToggle = () => {
+    setbdOpen(!open);
+  };
+
+
   const AddonChange = (ev) => {
     setValue(ev.target.value);
 
@@ -104,6 +114,9 @@ const Overview = ({ UserObj, setUserObj, Data, setData }) => {
     
     const UserData = filter(Data, ['User', User.toUpperCase()])
       //console.log(UserData.length)
+      setOpen(false)
+      setbdOpen(true);
+
       try {
         if (updatetype==='Add' && UserData.length===0){
             const body = {
@@ -122,7 +135,6 @@ const Overview = ({ UserObj, setUserObj, Data, setData }) => {
               
               let newState = Data
               newState.push(newUser)
-
               setData(orderBy(newState,[( o ) => { return o.Date || ''},'User'], ['desc', 'asc']))
             }
             
@@ -131,6 +143,7 @@ const Overview = ({ UserObj, setUserObj, Data, setData }) => {
           let res = await restdb.delete(`/records/${id}`);
           if(res.status == 200){
             //console.log('removed')
+            
             let x = Data
             setData(reject(x, {_id: id}))
           } 
@@ -139,7 +152,7 @@ const Overview = ({ UserObj, setUserObj, Data, setData }) => {
         setError("Something went wrong!");
         return console.log(error);
       }
-      setOpen(false)
+      setbdOpen(false)
   };
   
   const handleOnClick = (obj) => {
@@ -187,6 +200,13 @@ const Overview = ({ UserObj, setUserObj, Data, setData }) => {
 
   return (
     <>
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={bdopen}
+      >
+        <CircularProgress color="inherit" />
+        
+      </Backdrop>
     <Paper
     component="form"
     onSubmit={handleSubmit(SearchUser)}

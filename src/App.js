@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import ResponsiveAppBar from './components/nav'
-import Home from './components/Home'
-import Overview from './components/Overview'
-import Boldface from './components/Boldface'
-import Quiz from './components/Quiz'
+import Home from './pages/Home'
+import Overview from './pages/Overview'
+import Boldface from './pages/Boldface'
+import Quiz from './pages/Quiz'
 import { restdb, realtimeURL }  from "./utils/api_client";
 import { Routes, Route } from "react-router-dom";
 import { ThemeProvider, createTheme} from '@mui/material/styles';
@@ -87,7 +87,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="Overview" element={<Overview UserObj={UserObj} setUserObj={setUserObj} Data={Data} setData={setData}/>} />
-          <Route path="Boldface" element={<Boldface UserObj={UserObj} setUserObj={setUserObj} />} />
+          <Route path="Boldface" element={<Boldface UserObj={UserObj} setUserObj={setUserObj} Data={Data} setData={setData}/>} />
           <Route path="Quiz" element={<Quiz />} />
         </Routes>
     </ThemeProvider> 
