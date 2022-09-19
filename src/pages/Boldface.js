@@ -100,8 +100,6 @@ function getLines(str) {
 
     const textfield = (index) => find(compactRefs, element => {return element !== null;}, index);
 
-    textfield(current).value = newValue.toUpperCase()
-
     if (newLines > 0 ) {
       if(textfield(current)===textfield(last)){
         handleSubmit(handleOnSubmit)()                                        
@@ -114,6 +112,12 @@ function getLines(str) {
 
   const handleOnSubmit = (evt) => {
     
+    forIn(evt, function(value,key) {
+      update(evt, key, function(value) { return value.toUpperCase() })
+    });
+
+
+    console.log(evt)
     setCounter(Counter + 1) //track submission of form to trigger setfocus
 
     if (isEqual(evt, formValues)){
@@ -190,7 +194,7 @@ function getLines(str) {
                                       size="small"
                                       multiline
                                       autoComplete="off"
-                                      inputProps={{ style: { fontSize: "0.75rem" },            
+                                      inputProps={{ style: { fontSize: "0.75rem", textTransform: "uppercase"} ,            
                                       }}
                                       inputRef={(el) => (myRefs.current[index] = el)}
                                     />

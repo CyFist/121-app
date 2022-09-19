@@ -64,6 +64,9 @@ const Overview = ({ UserObj, setUserObj, Data, setData }) => {
   const [status, setStatus] = useState('idle');
   const [bdopen, setbdOpen] = useState(false);
 
+  const SearchUser = (event) => {
+    setQ(event.searchfield) 
+  };
 
   const AddonChange = (ev) => {
     setValue(ev.target.value.toUpperCase());
@@ -85,10 +88,8 @@ const Overview = ({ UserObj, setUserObj, Data, setData }) => {
     }
   };
 
-  const SearchUser = (event) => {
-    setQ(event.searchfield) 
-  };
   const RemoveonChange = (ev) => {
+    setValue(ev.target.value.toUpperCase());
     if (ev.target.value.toUpperCase() === ''){
       setRembtnDisabled(true)
     }else{
@@ -98,6 +99,7 @@ const Overview = ({ UserObj, setUserObj, Data, setData }) => {
   const handleOpen = (titletext) => {
     setModalTitle(titletext)
     setOpen(true);
+    setValue("")
   }
   const handleClose = () => {
       setOpen(false)
@@ -153,7 +155,6 @@ const Overview = ({ UserObj, setUserObj, Data, setData }) => {
       timerRef.current = window.setTimeout(() => {
         setbdOpen(false);
       }, 1000);
-      
   };
   
   const handleOnClick = (obj) => {
@@ -207,7 +208,7 @@ const Overview = ({ UserObj, setUserObj, Data, setData }) => {
         open={bdopen}
       >
          {status === 'success' ? (
-          <Typography variant="h6">Success. {(ModalTitle==="Remove")? 'Removed ' : 'Added'} {value}.</Typography>
+          <Typography variant="h6">{value} {(ModalTitle==="Remove")? ' REMOVED' : ' ADDED'}</Typography>
         ) : (
           <Fade
             in={status === 'progress'}
@@ -221,7 +222,6 @@ const Overview = ({ UserObj, setUserObj, Data, setData }) => {
           </Fade>
         )}
 
-        
       </Backdrop>
     <Paper
     component="form"
@@ -295,7 +295,7 @@ const Overview = ({ UserObj, setUserObj, Data, setData }) => {
                 onChange={RemoveonChange}
               >
                 {orderBy(Data, ['User'], ['asc']).map((obj) => (
-                  <MenuItem value={obj.User}>{obj.User}</MenuItem>
+                  <MenuItem key={obj.User} value={obj.User}>{obj.User}</MenuItem>
                 ))}
               </TextField>
             : 
