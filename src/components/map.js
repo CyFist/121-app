@@ -10,7 +10,7 @@ export default function Map(){
   const [lat] = useState(1.208333);
   const [zoom] = useState(7);
   const [API_KEY] = useState('mqJEvB3cbnsReZRBL9Ww');
-    
+
   useEffect(() => {
     if (map.current) return;
     map.current = new maplibregl.Map({
@@ -225,7 +225,7 @@ export default function Map(){
         'layout': {},
         'paint': {
         'fill-color': 'red',
-        'fill-opacity': 0.1
+        'fill-opacity': 0.3
         }
         });
         });
