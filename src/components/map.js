@@ -20,9 +20,6 @@ export default function Map(){
       zoom: zoom
     });
     map.current.addControl(new maplibregl.NavigationControl(), 'top-right');
-    new maplibregl.Marker({color: "#FF0000"})
-      .setLngLat([-68.13734351262877, 45.137451890638886])
-      .addTo(map.current);
 
       map.current.on('load', function () {
         map.current.addSource('maine', {
