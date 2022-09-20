@@ -1,12 +1,12 @@
 import React from 'react';
 import Map from '../components/map';
 
-const Home =() => {
+const WxRadar =() => {
   return (
     <div className="App">
-      Home
+      <Map/>
     </div>
   );
 }
 
-export default Home;
+export default WxRadar;

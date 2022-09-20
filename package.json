@@ -13,6 +13,7 @@
     "axios": "^0.27.2",
     "dayjs": "^1.11.5",
     "lodash": "^4.17.21",
+    "maplibre-gl": "^2.4.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.34.2",

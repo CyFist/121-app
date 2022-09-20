@@ -4,12 +4,14 @@ import Home from './pages/Home'
 import Overview from './pages/Overview'
 import Boldface from './pages/Boldface'
 import Quiz from './pages/Quiz'
+import WxRadar from './pages/WxRadar';
 import { restdb, realtimeURL }  from "./utils/api_client";
 import { Routes, Route } from "react-router-dom";
 import { ThemeProvider, createTheme} from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 
 import './App.css';
+
 
 const darkTheme = createTheme({
   palette: {
@@ -89,6 +91,7 @@ function App() {
           <Route path="Overview" element={<Overview UserObj={UserObj} setUserObj={setUserObj} Data={Data} setData={setData}/>} />
           <Route path="Boldface" element={<Boldface UserObj={UserObj} setUserObj={setUserObj} Data={Data} setData={setData}/>} />
           <Route path="Quiz" element={<Quiz />} />
+          <Route path="WxRadar" element={<WxRadar />} />
         </Routes>
     </ThemeProvider> 
     </div>
