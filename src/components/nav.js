@@ -12,7 +12,7 @@ import MenuItem from '@mui/material/MenuItem';
 
 import { Link } from 'react-router-dom'
 
-const pages = ['Overview', 'Boldface', 'Quiz', 'WxRadar'];
+const pages = ['Overview'];
 
 const ResponsiveAppBar = ({ Username, setUsername }) => {
   const [anchorElNav, setAnchorElNav] = useState(null);

@@ -1,9 +1,25 @@
 import React, { useRef, useEffect, useState } from 'react';
 import maplibregl from 'maplibre-gl';
+import { StylesControl  } from 'mapbox-gl-controls';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './map.css';
 
-export default function Map(){
+class HelloWorldControl {
+    onAdd(map) {
+    this._map = map;
+    this._container = document.createElement('div');
+    this._container.className = 'maplibregl-ctrl';
+    this._container.textContent = 'Hello, world';
+    return this._container;
+    }
+     
+    onRemove() {
+    this._container.parentNode.removeChild(this._container);
+    this._map = undefined;
+    }
+    }
+
+export function MapGL(){
   const mapContainer = useRef(null);
   const map = useRef(null);
   const [lng] = useState(103.731667);
@@ -17,10 +33,30 @@ export default function Map(){
       container: mapContainer.current,
       style: `https://api.maptiler.com/maps/d0af1468-795c-4934-824f-d29b70f13777/style.json?key=${API_KEY}`,
       center: [lng, lat],
-      zoom: zoom
+      zoom: zoom,
+      attributionControl: false
     });
     map.current.addControl(new maplibregl.NavigationControl(), 'top-right');
+    map.current.addControl(new StylesControl({
+        styles: [
+          {
+            label: 'dard',
+            styleName: 'Mapbox dark',
+            styleUrl: `https://api.maptiler.com/maps/d0af1468-795c-4934-824f-d29b70f13777/style.json?key=${API_KEY}`,
+          }, {
+            label: 'Satellite',
+            styleName: 'Satellite',
+            styleUrl: `https://api.maptiler.com/maps/streets/?key=${API_KEY}`,
+          },
+        ],
+        onChange: (style) => console.log(style),
+      }), 'top-left');
+    map.current.addControl(new maplibregl.ScaleControl({
+        maxWidth: 80,
+        unit: 'nautical'
+        }), 'bottom-left');
 
+    map.current.addControl(new HelloWorldControl(), 'bottom-left');
       map.current.on('load', function () {
         map.current.addSource('maine', {
         'type': 'geojson',
@@ -222,9 +258,19 @@ export default function Map(){
         'layout': {},
         'paint': {
         'fill-color': 'red',
-        'fill-opacity': 0.3
+        'fill-opacity': 0.05
         }
         });
+        map.current.addLayer({
+            'id': 'maine1',
+            'type': 'line',
+            'source': 'maine',
+            'layout': {},
+            'paint': {
+            'line-color': 'red',
+            'line-width': 0.5
+            }
+            });
         });
   });
 

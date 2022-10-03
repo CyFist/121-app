@@ -2,9 +2,10 @@ import React, { useState, useEffect, useRef } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { restdb }  from "../utils/api_client";
-import { alpha, Box, Container, Stepper, Step, StepLabel, Backdrop, Fab, Typography, TextField, Grid } from '@mui/material/';
+import { alpha, Box, Container, Stepper, Step, StepLabel, Backdrop, Typography, TextField, Grid, Button } from '@mui/material/';
+import Modal from '@mui/material/Modal';
 import { teal, pink, grey } from "@mui/material/colors";
-import { isEqual, forIn, update, find, findLast, findIndex, compact, orderBy } from "lodash";
+import { isEqual, forIn, update, find, findIndex, compact, orderBy } from "lodash";
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import boldfaces from "../utils/boldfaces.json"
@@ -21,6 +22,7 @@ export default function Boldface({ UserObj, setUserObj, Data, setData }) {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
   const [Openpop, setOpenpop] = useState(false);
+  const [open, setOpen] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const [Counter, setCounter] = useState(0);
   const timer = useRef();
@@ -32,6 +34,19 @@ export default function Boldface({ UserObj, setUserObj, Data, setData }) {
   });
 
   const bgSx = {...(success && {backgroundColor: alpha(teal[800],0.9),})};
+
+  const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    textAlign: 'center',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 2,
+  };
 
   useEffect(()=>{
     var items = {};
@@ -78,6 +93,12 @@ export default function Boldface({ UserObj, setUserObj, Data, setData }) {
       setError("Something went wrong!");
       return console.log(error);
     }
+};
+
+const handleClose = () => {
+  putData()
+  navigate("/Overview")
+  setOpen(false)
 };
 
 function getLines(str) {
@@ -135,9 +156,9 @@ function getLines(str) {
 
       if (Questions.length !== 1) {
         Questions.splice(randomNumber,1);
-      }else{
-        putData()
-        navigate("/Overview")
+      //}else{
+        setOpen(true)
+        
       }
     }else{
           setSuccess(false);
@@ -254,7 +275,26 @@ function getLines(str) {
           <Grid sx={{padding:"0.3rem"}}container rowSpacing={1} columnSpacing={{ xs: 1, sm: 1, md: 1 }}>
             {bf}
           </Grid>
-      </Box>       
+      </Box>
+      <Modal
+          open={open}
+          onClose={handleClose}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box
+          sx={style}>
+            <Typography variant="h6"  fullWidth>Completed!</Typography>
+            <Button fullWidth 
+              sx={{
+              borderColor: "whitesmoke",
+              color: "white",
+              '&:hover': { backgroundColor: alpha(grey[300],0.5), borderColor: "whitesmoke"}}} 
+              variant="outlined" 
+              onClick={() => { handleClose() }}
+              >Close</Button>
+          </Box>
+        </Modal>       
     </Container>
   );
 };

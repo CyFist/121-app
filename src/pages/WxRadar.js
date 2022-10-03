@@ -1,10 +1,13 @@
 import React from 'react';
-import Map from '../components/map';
+import { MapGL } from '../components/map';
+
+
+
 
 const WxRadar =() => {
   return (
     <div className="App">
-      <Map/>
+      <MapGL/>
     </div>
   );
 }

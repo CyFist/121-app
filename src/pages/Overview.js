@@ -162,9 +162,9 @@ const Overview = ({ UserObj, setUserObj, Data, setData }) => {
     setUserObj(obj);
 
     //console.log(dayjs(obj.Date).isSameOrAfter(dayjs().day(-6)));
-    if (!dayjs(obj.Date).isBetween(dayjs().day(0).set('hour', 23).set('minute', 59).set('second', 59), dayjs().day(8).set('hour', 0).set('minute', 0).set('second', 1) )){
+    //if (!dayjs(obj.Date).isBetween(dayjs().day(0).set('hour', 23).set('minute', 59).set('second', 59), dayjs().day(8).set('hour', 0).set('minute', 0).set('second', 1) )){
       navigate("/Boldface")
-    }
+    //}
     //console.log(sessionStorage.getItem('User'));
   }
 
