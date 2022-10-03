@@ -156,9 +156,8 @@ function getLines(str) {
 
       if (Questions.length !== 1) {
         Questions.splice(randomNumber,1);
-      //}else{
+      }else{
         setOpen(true)
-        
       }
     }else{
           setSuccess(false);
