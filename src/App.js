@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import ResponsiveAppBar from './components/nav'
+import ResponsiveAppBar from './components/NavBar'
 import Home from './pages/Home'
 import Overview from './pages/Overview'
 import Boldface from './pages/Boldface'
@@ -9,9 +9,10 @@ import { restdb, realtimeURL }  from "./utils/api_client";
 import { Routes, Route } from "react-router-dom";
 import { ThemeProvider, createTheme} from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-
 import './App.css';
 
+import axios from "axios";
+import _ from "lodash";
 
 const darkTheme = createTheme({
   palette: {
@@ -39,10 +40,12 @@ eventSource.addEventListener('ping', function(e) {
 
 }, false);
 
+
 function App() {
 
   const [UserObj, setUserObj] = useState([]);
   const [Data, setData] = useState([]);
+  const [QuizQns, setQuizQns] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   
@@ -80,7 +83,7 @@ function App() {
       setLoading(false);
     }
   };
-
+  
   return (
     <div className="App">
     <ThemeProvider theme={darkTheme}>

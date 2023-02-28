@@ -22,6 +22,8 @@ const ResponsiveAppBar = ({ Username, setUsername }) => {
   };
 
   const handleCloseNavMenu = () => {
+    sessionStorage.setItem('User', ''); 
+    setUsername('');
     setAnchorElNav(null);
   };
 

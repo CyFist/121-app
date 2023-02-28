@@ -4,7 +4,7 @@ import Map from '../components/map';
 const Home =() => {
   return (
     <div className="App">
-      Home
+      Welcome to the 121 App
     </div>
   );
 }

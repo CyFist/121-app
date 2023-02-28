@@ -142,10 +142,12 @@ function getLines(str) {
     setCounter(Counter + 1) //track submission of form to trigger setfocus
 
     if (isEqual(evt, formValues)){
+          //console.log("correct")
           setActiveStep((prevActiveStep) => prevActiveStep + 1);
 
           setSuccess(true);
           setOpenpop(true);
+          
         timer.current = window.setTimeout(() => {
           setOpenpop(false);
         }, 500);
@@ -160,6 +162,7 @@ function getLines(str) {
         setOpen(true)
       }
     }else{
+        //console.log("wrong")
           setSuccess(false);
           setOpenpop(true);
         timer.current = window.setTimeout(() => {

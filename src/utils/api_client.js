@@ -1,10 +1,10 @@
 import axios from "axios";
 
 // CORS enabled apikey
-const apikey = '63027f8439a0a971fe91626a';
+const apikey = '63eca0d0478852088da682d1';
 
 const restdb = axios.create({
-  baseURL: "https://onetwoone-ca88.restdb.io/rest",
+  baseURL: "https://enforcer-88e7.restdb.io/rest",
   headers: {
     "Content-Type": "application/json",
     "x-apikey": apikey,
@@ -13,6 +13,6 @@ const restdb = axios.create({
 
 });
 // Eventsource endpoint
-const realtimeURL = `https://onetwoone-ca88.restdb.io/realtime?apikey=${apikey}`
+const realtimeURL = `https://enforcer-88e7.restdb.io/realtime?apikey=${apikey}`
 
 export { restdb, realtimeURL }

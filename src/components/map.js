@@ -30,33 +30,20 @@ export function MapGL(){
   useEffect(() => {
     if (map.current) return;
     map.current = new maplibregl.Map({
-      container: mapContainer.current,
-      style: `https://api.maptiler.com/maps/d0af1468-795c-4934-824f-d29b70f13777/style.json?key=${API_KEY}`,
-      center: [lng, lat],
-      zoom: zoom,
-      attributionControl: false
+      container: mapContainer.current, // container id
+      style: `https://api.maptiler.com/maps/d0af1468-795c-4934-824f-d29b70f13777/style.json?key=${API_KEY}`, // style URL
+      center: [lng, lat], // starting position [lng, lat]
+      zoom: zoom, // starting zoom
+      attributionControl: false // remove attribution
     });
+    map.current.addControl(new HelloWorldControl(), 'bottom-left');
     map.current.addControl(new maplibregl.NavigationControl(), 'top-right');
-    map.current.addControl(new StylesControl({
-        styles: [
-          {
-            label: 'dard',
-            styleName: 'Mapbox dark',
-            styleUrl: `https://api.maptiler.com/maps/d0af1468-795c-4934-824f-d29b70f13777/style.json?key=${API_KEY}`,
-          }, {
-            label: 'Satellite',
-            styleName: 'Satellite',
-            styleUrl: `https://api.maptiler.com/maps/streets/?key=${API_KEY}`,
-          },
-        ],
-        onChange: (style) => console.log(style),
-      }), 'top-left');
     map.current.addControl(new maplibregl.ScaleControl({
         maxWidth: 80,
         unit: 'nautical'
         }), 'bottom-left');
+    
 
-    map.current.addControl(new HelloWorldControl(), 'bottom-left');
       map.current.on('load', function () {
         map.current.addSource('maine', {
         'type': 'geojson',
